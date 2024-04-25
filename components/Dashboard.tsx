@@ -6,7 +6,7 @@ import Header from "@/components/Header";
 
 export default function Dashboard() {
     const { data: session} = useSession({
-        required: true, // TODO: change after fixing the session storage to true
+        required: true,
     });
 
     if (!session) {
