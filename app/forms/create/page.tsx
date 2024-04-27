@@ -1,10 +1,17 @@
 import InputTextField from "@/components/forms/InputTextField";
 import InputRadioField, {RadioOption} from "@/components/forms/InputRadioField";
 import uuid from "react-native-uuid";
+import InputSelectField, {SelectOption} from "@/components/forms/InputSelectField";
 
 export default function FormsCreatePage() {
 
     const radioOptions: RadioOption[] = [
+        { key: 'key-1', value: 'Option 1'} ,
+        { key: 'key-2', value: 'Option 2'} ,
+        { key: 'key-3', value: 'Option 3'} ,
+    ]
+
+    const selectOptions: SelectOption[] = [
         { key: 'key-1', value: 'Option 1'} ,
         { key: 'key-2', value: 'Option 2'} ,
         { key: 'key-3', value: 'Option 3'} ,
@@ -52,6 +59,13 @@ export default function FormsCreatePage() {
                     hasError={false}
                     row={true}
                     options={radioOptions}
+                />
+                <InputSelectField
+                    id={uuid.v4().toString()}
+                    label="Input type select"
+                    placeholder="Esto es el placeholder"
+                    hasError={false}
+                    options={selectOptions}
                 />
             </form>
         </>
