@@ -31,7 +31,6 @@ export default function InputTextField(
     });
 
     const handleFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        console.log(e.target.value);
         setInputState({
             ...inputState,
             value: e.target.value

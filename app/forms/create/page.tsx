@@ -1,8 +1,17 @@
 import InputTextField from "@/components/forms/InputTextField";
+import InputRadioField, {RadioOption} from "@/components/forms/InputRadioField";
+import uuid from "react-native-uuid";
 
 export default function FormsCreatePage() {
+
+    const radioOptions: RadioOption[] = [
+        { key: 'key-1', value: 'Option 1'} ,
+        { key: 'key-2', value: 'Option 2'} ,
+        { key: 'key-3', value: 'Option 3'} ,
+    ]
+
     return (
-        <div>
+        <>
             <h1>Create Form</h1>
             <form>
                 <InputTextField
@@ -29,7 +38,22 @@ export default function FormsCreatePage() {
                     type="multiline"
                     rows={4}
                 />
+                <InputRadioField
+                    id={uuid.v4().toString()}
+                    label="Input type radio"
+                    placeholder="Esto es el placeholder"
+                    hasError={false}
+                    options={radioOptions}
+                />
+                <InputRadioField
+                    id={uuid.v4().toString()}
+                    label="Input type radio row format"
+                    placeholder="Esto es el placeholder"
+                    hasError={false}
+                    row={true}
+                    options={radioOptions}
+                />
             </form>
-        </div>
+        </>
     )
 }
