@@ -3,26 +3,18 @@
 import {FormControl, FormControlLabel, FormHelperText, FormLabel, Radio, RadioGroup} from "@mui/material";
 import React, {useState} from "react";
 import uuid from "react-native-uuid";
+import RadioOption from "@/components/forms/interfaces/radio-option.interface";
+import PropsCommon from "@/components/forms/interfaces/props-common.interface";
+import defaultCommonProps from "@/components/forms/entities/default-common-props.entity";
 
-export interface RadioOption {
-    key: string;
-    value: string;
-}
-interface Props {
-    id?: string
-    label: string;
-    placeholder: string;
-    hasError: boolean;
+interface Props extends Partial<PropsCommon> {
     options: RadioOption[];
-    helperText?: string|null;
     row?: boolean;
 }
 
 const defaultProps: Props = {
+    ...defaultCommonProps,
     id: uuid.v4().toString(),
-    label: '',
-    placeholder: '',
-    hasError: false,
     options: [],
     row: false,
 }
@@ -50,6 +42,8 @@ export default function InputRadioField(
             error={props.hasError}
             onChange={handleFieldChange}
             fullWidth
+            required={props.required}
+            disabled={props.disabled}
         >
             <FormLabel id={props.id}>{props.label}</FormLabel>
             <RadioGroup
@@ -64,6 +58,7 @@ export default function InputRadioField(
                         value={item.key}
                         control={<Radio />}
                         label={item.value}
+                        disabled={item.disabled}
                     />
                 ))}
 
