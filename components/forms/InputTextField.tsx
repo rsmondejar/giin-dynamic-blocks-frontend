@@ -2,20 +2,16 @@
 
 import {TextField} from "@mui/material";
 import React, {useState} from "react";
+import PropsCommon from "@/components/forms/interfaces/props-common.interface";
+import defaultCommonProps from "@/components/forms/entities/default-common-props.entity";
 
-interface Props {
-    label: string;
-    placeholder: string;
-    hasError: boolean;
+interface Props extends Partial<PropsCommon> {
     type?: string;
-    helperText?: string|null;
     rows?: number;
 }
 
 const defaultProps: Props = {
-    label: '',
-    placeholder: '',
-    hasError: false,
+    ...defaultCommonProps,
     type: 'text',
     rows: 4,
 }
@@ -26,7 +22,7 @@ export default function InputTextField(
     const props = {...defaultProps, ...propsIn};
 
     const [inputState, setInputState] = useState({
-        value: '',
+        value: props.value,
         error: false,
     });
 
@@ -44,6 +40,11 @@ export default function InputTextField(
             sx={{mb: 1}}
             onChange={handleFieldChange}
             value={inputState.value}
+            required={props.required}
+            disabled={props.disabled}
+            inputProps={
+                {readOnly: props.readonly,}
+            }
             fullWidth
             label={props.label}
             placeholder={props.placeholder}
