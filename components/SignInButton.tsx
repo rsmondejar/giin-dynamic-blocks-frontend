@@ -8,7 +8,7 @@ const SignInButton = () => {
     const {data: session} = useSession();
     console.log({session});
 
-    if (session && session.user)
+    if (session?.user)
         return (
             <div className="flex gap-4 ml-auto">
                 <p className="text-sky-600">{session.user.name}</p>

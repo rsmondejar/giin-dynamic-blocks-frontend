@@ -33,31 +33,29 @@ export default function InputCheckboxField(
     }
 
     return (
-        <>
-            <FormControl
-                sx={{ m: 1 }}
-                component="fieldset"
-                variant="standard"
-                fullWidth
-                error={props.hasError}
-            >
-                <FormLabel component="legend">{props.label}</FormLabel>
-                <FormGroup>
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                value={inputState.value}
-                                // checked={inputState.value}
-                                onChange={handleFieldChange}
-                            />
-                        }
-                        label={props.label}
-                        required={props.required}
-                        disabled={props.disabled}
-                    />
-                </FormGroup>
-                <FormHelperText>{props.helperText}</FormHelperText>
-            </FormControl>
-        </>
+        <FormControl
+            sx={{ m: 1 }}
+            component="fieldset"
+            variant="standard"
+            fullWidth
+            error={props.hasError}
+        >
+            <FormLabel component="legend">{props.label}</FormLabel>
+            <FormGroup>
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            value={inputState.value}
+                            // checked={inputState.value}
+                            onChange={handleFieldChange}
+                        />
+                    }
+                    label={props.label}
+                    required={props.required}
+                    disabled={props.disabled}
+                />
+            </FormGroup>
+            <FormHelperText>{props.helperText}</FormHelperText>
+        </FormControl>
     );
 }
