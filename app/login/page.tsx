@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function LoginPage() {
 
     return (
-        <Grid container alignItems='center' justifyContent='center' height='100vh'>
+        <Grid container alignItems='center' justifyContent='center'>
             <Grid item>
                 <Header title='Login' />
                 <LoginForm />

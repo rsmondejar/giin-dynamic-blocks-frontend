@@ -1,7 +1,9 @@
-import type { Metadata } from "next";
+import type {Metadata} from "next";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import React from "react";
+import {CssBaseline} from "@mui/material";
+import NavBar from "@/components/NavBar";
 
 export const metadata: Metadata = {
     title: {
@@ -15,18 +17,18 @@ export const metadata: Metadata = {
     },
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
+export default function RootLayout({children}: Readonly<{
+    children: React.ReactNode;
 }>) {
-  return (
-    <html lang="es">
-      <body>
-          <Providers>
-              {children}
-          </Providers>
-      </body>
-    </html>
-  );
+    return (
+        <html lang="es">
+        <CssBaseline/>
+        <body>
+        <Providers>
+            <NavBar />
+            {children}
+        </Providers>
+        </body>
+        </html>
+    );
 }
