@@ -10,26 +10,21 @@ import {
 } from "@mui/material";
 import React, {useState} from "react";
 import uuid from "react-native-uuid";
+import SelectOption from "@/components/forms/interfaces/select-option.interface";
+import PropsCommon from "@/components/forms/interfaces/props-common.interface";
+import defaultCommonProps from "@/components/forms/entities/default-common-props.entity";
+import RadioOption from "@/components/forms/interfaces/radio-option.interface";
 
-export interface SelectOption {
-    key: string;
-    value: string;
-}
-
-interface Props {
-    id?: string
-    label: string;
-    placeholder: string;
-    hasError: boolean;
-    options: SelectOption[];
-    helperText?: string | null;
+interface Props extends Partial<PropsCommon> {
+    id: string;
+    value?: string;
+    options: RadioOption[];
 }
 
 const defaultProps: Props = {
+    ...defaultCommonProps,
     id: uuid.v4().toString(),
-    label: '',
-    placeholder: '',
-    hasError: false,
+    value: '',
     options: [],
 }
 
@@ -39,7 +34,7 @@ export default function InputSelectField(
     const props = {...defaultProps, ...propsIn};
 
     const [inputState, setInputState] = useState({
-        value: '',
+        value: props.value,
         error: false,
     });
 
@@ -55,6 +50,8 @@ export default function InputSelectField(
             sx={{mb: 1}}
             error={props.hasError}
             fullWidth
+            required={props.required}
+            disabled={props.disabled}
         >
             <InputLabel id={props.id}>{props.label}</InputLabel>
             <Select
@@ -66,7 +63,11 @@ export default function InputSelectField(
                 onChange={handleFieldChange}
             >
                 {props.options.map((item: SelectOption) => (
-                    <MenuItem key={item.key} value={item.key}>{item.value}</MenuItem>
+                    <MenuItem
+                        key={item.key}
+                        value={item.key}
+                        disabled={item.disabled}
+                    >{item.value}</MenuItem>
                 ))}
             </Select>
             <FormHelperText>{props.helperText}</FormHelperText>
