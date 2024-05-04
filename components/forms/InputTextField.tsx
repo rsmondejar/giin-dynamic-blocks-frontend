@@ -4,10 +4,12 @@ import {TextField} from "@mui/material";
 import React, {useState} from "react";
 import PropsCommon from "@/components/forms/interfaces/props-common.interface";
 import defaultCommonProps from "@/components/forms/entities/default-common-props.entity";
+import {InputProps as StandardInputProps} from "@mui/material/Input/Input";
 
 interface Props extends Partial<PropsCommon> {
     type?: string;
     rows?: number;
+    onChange?: StandardInputProps['onChange'];
 }
 
 const defaultProps: Props = {
@@ -31,13 +33,17 @@ export default function InputTextField(
             ...inputState,
             value: e.target.value
         });
+
+        if (typeof propsIn.onChange === 'function') {
+            propsIn.onChange(e);
+        }
     }
 
     return (
         <TextField
             error={props.hasError}
             type={props.type}
-            sx={{mb: 1}}
+            sx={{mb: 2}}
             onChange={handleFieldChange}
             value={inputState.value}
             required={props.required}
@@ -51,6 +57,7 @@ export default function InputTextField(
             helperText={props.helperText}
             rows={props.rows}
             multiline={props.type === 'multiline'}
+            size={props.size}
         />
     );
 }
