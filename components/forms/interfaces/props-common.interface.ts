@@ -9,6 +9,8 @@ export default interface PropsCommon {
     value?: string|boolean|null;
     placeholder?: string;
     helperText?: string|null;
+    size?: 'small'|'medium';
+    sx?: any;
 }
 
 
