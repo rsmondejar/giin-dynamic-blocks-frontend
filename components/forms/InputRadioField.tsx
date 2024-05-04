@@ -34,6 +34,10 @@ export default function InputRadioField(
             ...inputState,
             value: e.target.value
         });
+
+        if (typeof propsIn.onChange === 'function') {
+            propsIn.onChange(e);
+        }
     }
 
     return (
