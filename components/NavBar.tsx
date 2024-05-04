@@ -16,6 +16,7 @@ import MenuItem from '@mui/material/MenuItem';
 import WidgetsIcon from '@mui/icons-material/Widgets';
 import Link from "next/link";
 import {useSession} from "next-auth/react";
+import NightModeToggle from "@/components/NightModeToggle";
 
 const pages: {title: string, url: string}[] = [
     {title: 'Dashboard', url: '/dashboard'},
@@ -35,7 +36,8 @@ export default function NavBar() {
         required: false,
     });
 
-    const userAcronyms: string = (session?.user?.name?.charAt(0).toUpperCase() || 'U') + (session?.user?.lastName?.charAt(0).toUpperCase() || 'U');
+    const userAcronyms: string = (session?.user?.name?.charAt(0).toUpperCase() ?? 'U')
+        + (session?.user?.lastName?.charAt(0).toUpperCase() ?? 'U');
 
     const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElNav(event.currentTarget);
@@ -53,7 +55,7 @@ export default function NavBar() {
     };
 
     return (
-        <AppBar position="static">
+        <AppBar position="sticky">
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
                     <WidgetsIcon sx={{display: {xs: 'none', md: 'flex'}, mr: 1}}/>
@@ -143,6 +145,7 @@ export default function NavBar() {
                     >
                         Dynamic Blocks
                     </Typography>
+                    <NightModeToggle />
                     <Box sx={{flexGrow: 1, display: {xs: 'none', md: 'flex'}}}>
                         {session && (
                             pages.map((page: {title: string, url: string}) => (
