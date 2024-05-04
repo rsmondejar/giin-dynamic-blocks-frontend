@@ -14,11 +14,13 @@ import SelectOption from "@/components/forms/interfaces/select-option.interface"
 import PropsCommon from "@/components/forms/interfaces/props-common.interface";
 import defaultCommonProps from "@/components/forms/entities/default-common-props.entity";
 import RadioOption from "@/components/forms/interfaces/radio-option.interface";
+import {SelectProps as StandardSelectProps} from "@mui/material/Select/Select";
 
 interface Props extends Partial<PropsCommon> {
     id: string;
     value?: string;
     options: RadioOption[];
+    onChange?: StandardSelectProps['onChange'];
 }
 
 const defaultProps: Props = {
@@ -43,6 +45,10 @@ export default function InputSelectField(
             ...inputState,
             value: e.target.value
         });
+
+        if (typeof propsIn.onChange === 'function') {
+            propsIn.onChange(e, e.target.value);
+        }
     }
 
     return (
