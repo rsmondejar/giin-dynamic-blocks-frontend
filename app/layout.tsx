@@ -2,7 +2,6 @@ import type {Metadata} from "next";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import React from "react";
-import {CssBaseline} from "@mui/material";
 import NavBar from "@/components/NavBar";
 
 export const metadata: Metadata = {
@@ -11,7 +10,7 @@ export const metadata: Metadata = {
         default: 'Dynamic Blocks',
     },
     description: 'VIU GIIN - Dynamic Blocks',
-    metadataBase: new URL(process.env.APP_URL || ''),
+    metadataBase: new URL(process.env.APP_URL ?? ''),
     alternates: {
         canonical: './',
     },
@@ -22,7 +21,6 @@ export default function RootLayout({children}: Readonly<{
 }>) {
     return (
         <html lang="es">
-        <CssBaseline/>
         <body>
         <Providers>
             <NavBar />

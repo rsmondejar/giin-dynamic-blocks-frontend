@@ -1,12 +1,21 @@
 "use client";
 
-import { SessionProvider } from "next-auth/react";
 import React from "react";
+import {SessionProvider} from "next-auth/react";
+import {ThemeContextProvider} from "@/theme/ThemeContextProvider";
+import CssBaseline from "@mui/material/CssBaseline";
 
-const Providers = ({ children }: Readonly<{
+const Providers = ({children}: Readonly<{
     children: React.ReactNode;
 }>) => {
-    return <SessionProvider>{children}</SessionProvider>;
+    return (
+        <ThemeContextProvider>
+            <CssBaseline/>
+            <SessionProvider>
+                {children}
+            </SessionProvider>
+        </ThemeContextProvider>
+    );
 };
 
 export default Providers;
