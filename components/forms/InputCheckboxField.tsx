@@ -30,6 +30,10 @@ export default function InputCheckboxField(
             ...inputState,
             value: e.target.value === 'on'
         });
+
+        if (typeof propsIn.onChange === 'function') {
+            propsIn.onChange(e);
+        }
     }
 
     return (
