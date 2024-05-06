@@ -10,12 +10,12 @@ import PrintIcon from '@mui/icons-material/Print';
 import AddCommentIcon from '@mui/icons-material/AddComment';
 import { useSnackbar } from 'notistack';
 
-export default function FormCreateSpeedDial(propsIn: { handleAddQuestion: () => void; }) {
+export default function FormCreateSpeedDial(propsIn: { handleAddQuestion: () => void; handleOpenSaveDialog: () => void;}) {
 
     const { enqueueSnackbar } = useSnackbar();
 
     const handleClickSave = () => {
-        enqueueSnackbar('Funcionalidad de guardar no implementada en esta versión.', { variant: 'info' });
+        propsIn.handleOpenSaveDialog()
     }
 
     const handleClickPrint = () => {

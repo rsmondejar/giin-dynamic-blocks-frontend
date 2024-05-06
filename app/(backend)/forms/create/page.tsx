@@ -2,7 +2,7 @@
 
 import React, {useState, useEffect} from "react";
 import InputTextField from "@/components/forms/InputTextField";
-import {Grid} from "@mui/material";
+import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid} from "@mui/material";
 import Box from "@mui/material/Box";
 import Stack from '@mui/material/Stack';
 import CardItemInput from "@/components/forms/CardItemInput";
@@ -63,6 +63,16 @@ export default function FormsCreatePage() {
         setQuestions(questions.filter((question) => question.id !== id));
     }
 
+    const [openSaveDialog, setOpenSaveDialog] = React.useState(false);
+
+    const handleOpenSaveDialog = () => {
+        setOpenSaveDialog(true);
+    };
+
+    const handleCloseSaveDialog = () => {
+        setOpenSaveDialog(false);
+    };
+
     return (
         <Container maxWidth="lg">
             <Container maxWidth="md">
@@ -105,8 +115,34 @@ export default function FormsCreatePage() {
                 </Grid>
             </Container>
             <Box sx={{position: 'fixed', bottom: 16, right: 16}}>
-                <FormCreateSpeedDial handleAddQuestion={handleAddQuestion}/>
+                <FormCreateSpeedDial
+                    handleAddQuestion={handleAddQuestion}
+                    handleOpenSaveDialog={handleOpenSaveDialog}
+                />
             </Box>
+            <Dialog
+                open={openSaveDialog}
+                onClose={handleCloseSaveDialog}
+                aria-labelledby="alert-dialog-save-title"
+                aria-describedby="alert-dialog-save-description"
+            >
+                <DialogTitle id="alert-dialog-save-title">
+                    {"¿Usted está seguro de guardar el formulario?"}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-save-description">
+                        Una vez guardado el formulario no se podrá modificar.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseSaveDialog} variant="contained" color="secondary">
+                        Cancelar
+                    </Button>
+                    <Button onClick={handleCloseSaveDialog} variant="contained" autoFocus>
+                        Guardar
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Container>
     );
 }
