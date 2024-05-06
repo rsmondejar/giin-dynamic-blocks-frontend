@@ -18,6 +18,7 @@ import CardItemInputText from "@/components/forms/CarItemInputText";
 import CardItemInputSelect from "@/components/forms/CarItemInputSelect";
 import Item from "@/components/Item";
 import CardItemInputCheckbox from "@/components/forms/CarItemInputCheckbox";
+import CardItemInputRadio from "@/components/forms/CarItemInputRadio";
 
 export default function CardItemInput(
     propsIn: Readonly<{
@@ -36,6 +37,7 @@ export default function CardItemInput(
         {key: 'input_textarea', value: 'Texto Multilinea'},
         {key: 'input_numeric', value: 'Número'},
         {key: 'input_select', value: 'Lista desplegable'},
+        {key: 'input_radio', value: 'Lista opciones'},
         {key: 'input_checkbox', value: 'Checkbox'},
     ];
 
@@ -47,7 +49,7 @@ export default function CardItemInput(
             case 'input_select':
                 return <CardItemInputSelect question={propsIn.question}/>
             case 'input_radio':
-                return (<p>TODO: Input radio</p>)
+                return <CardItemInputRadio question={propsIn.question} />
             case 'input_checkbox':
                 return <CardItemInputCheckbox question={propsIn.question} />
             default:

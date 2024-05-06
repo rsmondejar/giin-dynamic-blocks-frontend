@@ -57,12 +57,19 @@ export default function FormsCreatePage() {
                 //     isRequired: false,
                 //     type: 'input_numeric',
                 // },
+                // {
+                //     id: uuid.v4().toString() || '',
+                //     title: 'Pregunta 5 tipo checkbox',
+                //     placeholder: 'Pregunta 5...',
+                //     isRequired: false,
+                //     type: 'input_checkbox',
+                // },
                 {
                     id: uuid.v4().toString() || '',
-                    title: 'Pregunta 5 tipo checkbox',
-                    placeholder: 'Pregunta 5...',
+                    title: 'Pregunta 6 tipo radio',
+                    placeholder: 'Pregunta 6...',
                     isRequired: false,
-                    type: 'input_checkbox',
+                    type: 'input_radio',
                 },
             ]
         );
