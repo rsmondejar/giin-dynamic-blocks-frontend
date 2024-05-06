@@ -13,6 +13,7 @@ import IconButton from "@mui/material/IconButton";
 import ClearIcon from '@mui/icons-material/Clear';
 import SelectOption from "@/components/forms/interfaces/select-option.interface";
 import uuid from "react-native-uuid";
+import RadioOption from "@/components/forms/interfaces/radio-option.interface";
 
 export default function CardItemInputSelect(
     propsIn: Readonly<{
@@ -22,6 +23,7 @@ export default function CardItemInputSelect(
             placeholder: string;
             isRequired: boolean;
             hasError?: boolean;
+            options?: SelectOption[];
         }
     }>
 ): React.JSX.Element {
@@ -36,18 +38,30 @@ export default function CardItemInputSelect(
         {key: uuid.v4().toString(), value: ''},
     ]);
 
+    const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setTitle(e.target.value);
+        propsIn.question.title = e.target.value;
+    }
+
+    const handlePlaceholderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setPlaceholder(e.target.value);
+        propsIn.question.placeholder = e.target.value;
+    }
+
     const handleClickOptionInputText = (index: number): void => {
         if (index === options.length - 1) {
             setOptions([
                 ...options,
                 {key: uuid.v4().toString(), value: ''}
             ]);
+            propsIn.question.options = options;
         }
     }
 
     const handleClickOptionDelete = (index: number): void => {
         if (options.length > 1) {
             setOptions(options.filter((option: SelectOption, i: number) => i !== index));
+            propsIn.question.options = options;
         }
     }
 
@@ -55,7 +69,7 @@ export default function CardItemInputSelect(
         // controlar que value sea único
         const hasError: boolean = options.some((option: SelectOption) => option.key !== optionKey && option.value === e.target.value);
 
-        setOptions(options.map((option: SelectOption) => {
+        propsIn.question.options = options.map((option: RadioOption) => {
             if (option.key === optionKey) {
                 return {
                     ...option,
@@ -64,7 +78,9 @@ export default function CardItemInputSelect(
                 }
             }
             return option;
-        }));
+        });
+
+        setOptions(propsIn.question.options);
     }
 
     return (
@@ -73,7 +89,7 @@ export default function CardItemInputSelect(
                 label={title.length > 0 ? title : defaultTitle}
                 value={title}
                 placeholder={placeholder.length > 0 ? placeholder : defaultPlaceholder}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={handleTitleChange}
                 required={propsIn?.question?.isRequired || false}
                 sx={{mb: 4}}
             />
@@ -81,7 +97,7 @@ export default function CardItemInputSelect(
                 label="Texto opcional del placeholder"
                 value={placeholder}
                 placeholder={defaultPlaceholder}
-                onChange={(e) => setPlaceholder(e.target.value)}
+                onChange={handlePlaceholderChange}
                 size="small"
             />
             <h3>Agregar opciones para la lista desplegable</h3>

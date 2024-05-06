@@ -61,6 +61,7 @@ export default function CardItemInput(
 
     const handleInputTypeChange = (e: SelectChangeEvent<string>) => {
         setInputType(e.target.value)
+        propsIn.question.type = e.target.value;
     }
 
     const handleIsRequiredChange = (e: React.ChangeEvent<HTMLInputElement>) => {

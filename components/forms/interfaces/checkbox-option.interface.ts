@@ -1,4 +1,4 @@
-export default interface RadioOption {
+export default interface CheckboxOption {
     key: string;
     value: string;
     disabled?: boolean;

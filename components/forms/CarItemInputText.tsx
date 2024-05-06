@@ -18,13 +18,23 @@ export default function CardItemInputText(
     const [title, setTitle]: [string, (value: (((prevState: string) => string) | string)) => void] = React.useState(propsIn?.question?.title || '');
     const [placeholder, setPlaceholder]: [string, (value: (((prevState: string) => string) | string)) => void] = React.useState(propsIn?.question?.placeholder || '');
 
+    const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setTitle(e.target.value);
+        propsIn.question.title = e.target.value;
+    }
+
+    const handlePlaceholderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setPlaceholder(e.target.value);
+        propsIn.question.placeholder = e.target.value;
+    }
+
     return (
         <>
             <InputTextField
                 label={title.length > 0 ? title : defaultTitle}
                 value={title}
                 placeholder={placeholder.length > 0 ? placeholder : defaultPlaceholder}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={handleTitleChange}
                 required={propsIn?.question?.isRequired || false}
                 sx={{mb: 4}}
             />
@@ -32,7 +42,7 @@ export default function CardItemInputText(
                 label="Texto opcional del placeholder"
                 value={placeholder}
                 placeholder={defaultPlaceholder}
-                onChange={(e) => setPlaceholder(e.target.value)}
+                onChange={handlePlaceholderChange}
                 size="small"
             />
         </>
