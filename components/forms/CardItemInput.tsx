@@ -29,7 +29,8 @@ export default function CardItemInput(
             isRequired: boolean;
             type: string;
             hasError?: boolean;
-        }
+        },
+        handleDeleteQuestion: (id: string) => void;
     }>
 ): React.JSX.Element {
     const inputsTypesAvailable = [
@@ -112,7 +113,7 @@ export default function CardItemInput(
                             size="small"
                             aria-label="delete"
                             color="error"
-                            onClick={() => console.log('delete: ' + propsIn.question.id)}
+                            onClick={() => propsIn.handleDeleteQuestion(propsIn.question.id)}
                         >
                             <DeleteIcon fontSize="small"/>
                         </Button>

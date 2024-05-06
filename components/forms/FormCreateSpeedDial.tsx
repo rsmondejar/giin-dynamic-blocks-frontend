@@ -10,7 +10,7 @@ import PrintIcon from '@mui/icons-material/Print';
 import AddCommentIcon from '@mui/icons-material/AddComment';
 import { useSnackbar } from 'notistack';
 
-export default function FormCreateSpeedDial() {
+export default function FormCreateSpeedDial(propsIn: { handleAddQuestion: () => void; }) {
 
     const { enqueueSnackbar } = useSnackbar();
 
@@ -23,6 +23,7 @@ export default function FormCreateSpeedDial() {
     }
 
     const handleClickAddQuestion = () => {
+        propsIn.handleAddQuestion()
         enqueueSnackbar('Funcionalidad de agregar pregunta no implementada en esta versión.', { variant: 'success' });
     }
 
