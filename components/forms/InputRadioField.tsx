@@ -6,10 +6,13 @@ import uuid from "react-native-uuid";
 import RadioOption from "@/components/forms/interfaces/radio-option.interface";
 import PropsCommon from "@/components/forms/interfaces/props-common.interface";
 import defaultCommonProps from "@/components/forms/entities/default-common-props.entity";
+import {SelectProps as StandardSelectProps} from "@mui/material/Select/Select";
 
 interface Props extends Partial<PropsCommon> {
+    id: string;
     options: RadioOption[];
     row?: boolean;
+    onChange?: StandardSelectProps['onChange'];
 }
 
 const defaultProps: Props = {
@@ -36,7 +39,7 @@ export default function InputRadioField(
         });
 
         if (typeof propsIn.onChange === 'function') {
-            propsIn.onChange(e);
+            propsIn.onChange(e, e.target.value);
         }
     }
 
