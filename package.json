@@ -16,6 +16,7 @@
     "@mui/material": "^5.15.15",
     "next": "14.2.3",
     "next-auth": "^4.24.7",
+    "notistack": "^3.0.1",
     "react": "^17.0.0 || ^18.0.0",
     "react-dom": "^17.0.0 || ^18.0.0",
     "react-native-uuid": "^2.0.2"

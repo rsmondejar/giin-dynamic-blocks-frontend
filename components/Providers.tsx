@@ -4,6 +4,7 @@ import React from "react";
 import {SessionProvider} from "next-auth/react";
 import {ThemeContextProvider} from "@/theme/ThemeContextProvider";
 import CssBaseline from "@mui/material/CssBaseline";
+import {SnackbarProvider} from "notistack";
 
 const Providers = ({children}: Readonly<{
     children: React.ReactNode;
@@ -12,7 +13,9 @@ const Providers = ({children}: Readonly<{
         <ThemeContextProvider>
             <CssBaseline/>
             <SessionProvider>
-                {children}
+                <SnackbarProvider maxSnack={5}>
+                    {children}
+                </SnackbarProvider>
             </SessionProvider>
         </ThemeContextProvider>
     );

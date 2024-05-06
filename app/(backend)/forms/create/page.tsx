@@ -1,12 +1,11 @@
 "use client";
 
-import React, {useState, useEffect} from "react";
+import React, {useState} from "react";
 import InputTextField from "@/components/forms/InputTextField";
 import {Grid} from "@mui/material";
 import Box from "@mui/material/Box";
 import Stack from '@mui/material/Stack';
 import CardItemInput from "@/components/forms/CardItemInput";
-import uuid from "react-native-uuid";
 import Container from "@mui/material/Container";
 import FormCreateSpeedDial from "@/components/forms/FormCreateSpeedDial";
 import Item from "@/components/Item";
@@ -16,7 +15,7 @@ export default function FormsCreatePage() {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
 
-    const [questions, setQuestions] = useState([
+    const [questions] = useState([
         {
             id: '',
             title: 'Pregunta 1',
@@ -25,62 +24,6 @@ export default function FormsCreatePage() {
             type: 'input_text',
         }
     ]);
-
-    useEffect(() => {
-        setQuestions(
-            [
-                // {
-                //     id: uuid.v4().toString() || '',
-                //     title: 'Pregunta 1 tipo input simple',
-                //     placeholder: 'Pregunta 1...',
-                //     isRequired: false,
-                //     type: 'input_text',
-                // },
-                // {
-                //     id: uuid.v4().toString(),
-                //     title: 'Pregunta 2 tipo input select',
-                //     placeholder: 'Pregunta 2...',
-                //     isRequired: false,
-                //     type: 'input_select',
-                // },
-                // {
-                //     id: uuid.v4().toString(),
-                //     title: 'Pregunta 3',
-                //     placeholder: 'Pregunta 3...',
-                //     isRequired: false,
-                //     type: 'input_textarea',
-                // },
-                // {
-                //     id: uuid.v4().toString() || '',
-                //     title: 'Pregunta 4 tipo input numeric',
-                //     placeholder: 'Pregunta 4...',
-                //     isRequired: false,
-                //     type: 'input_numeric',
-                // },
-                // {
-                //     id: uuid.v4().toString() || '',
-                //     title: 'Pregunta 5 tipo checkbox',
-                //     placeholder: 'Pregunta 5...',
-                //     isRequired: false,
-                //     type: 'input_checkbox',
-                // },
-                // {
-                //     id: uuid.v4().toString() || '',
-                //     title: 'Pregunta 6 tipo radio',
-                //     placeholder: 'Pregunta 6...',
-                //     isRequired: false,
-                //     type: 'input_radio',
-                // },
-                {
-                    id: uuid.v4().toString() || '',
-                    title: 'Pregunta 6 tipo fecha',
-                    placeholder: 'Pregunta 6...',
-                    isRequired: false,
-                    type: 'input_date',
-                },
-            ]
-        );
-    }, []);
 
     const handleFormTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setTitle(e.target.value);
