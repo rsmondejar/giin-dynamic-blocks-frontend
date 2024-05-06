@@ -29,26 +29,40 @@ export default function FormsCreatePage() {
     useEffect(() => {
         setQuestions(
             [
+                // {
+                //     id: uuid.v4().toString() || '',
+                //     title: 'Pregunta 1 tipo input simple',
+                //     placeholder: 'Pregunta 1...',
+                //     isRequired: false,
+                //     type: 'input_text',
+                // },
+                // {
+                //     id: uuid.v4().toString(),
+                //     title: 'Pregunta 2 tipo input select',
+                //     placeholder: 'Pregunta 2...',
+                //     isRequired: false,
+                //     type: 'input_select',
+                // },
+                // {
+                //     id: uuid.v4().toString(),
+                //     title: 'Pregunta 3',
+                //     placeholder: 'Pregunta 3...',
+                //     isRequired: false,
+                //     type: 'input_textarea',
+                // },
+                // {
+                //     id: uuid.v4().toString() || '',
+                //     title: 'Pregunta 4 tipo input numeric',
+                //     placeholder: 'Pregunta 4...',
+                //     isRequired: false,
+                //     type: 'input_numeric',
+                // },
                 {
                     id: uuid.v4().toString() || '',
-                    title: 'Pregunta 1 tipo input simple',
-                    placeholder: 'Pregunta 1...',
+                    title: 'Pregunta 5 tipo checkbox',
+                    placeholder: 'Pregunta 5...',
                     isRequired: false,
-                    type: 'input_text',
-                },
-                {
-                    id: uuid.v4().toString(),
-                    title: 'Pregunta 2 tipo input select',
-                    placeholder: 'Pregunta 2...',
-                    isRequired: false,
-                    type: 'input_select',
-                },
-                {
-                    id: uuid.v4().toString(),
-                    title: 'Pregunta 3',
-                    placeholder: 'Pregunta 3...',
-                    isRequired: false,
-                    type: 'input_textarea',
+                    type: 'input_checkbox',
                 },
             ]
         );
@@ -91,7 +105,7 @@ export default function FormsCreatePage() {
 
                         <Box sx={{width: '100%'}}>
                             <Stack spacing={3}>
-                                {questions.map((question, index) => (
+                                {questions.map((question) => (
                                     <CardItemInput key={question.id} question={question}/>
                                 ))}
                             </Stack>

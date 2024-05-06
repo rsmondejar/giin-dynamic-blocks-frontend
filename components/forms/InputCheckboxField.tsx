@@ -4,9 +4,11 @@ import {Checkbox, FormControl, FormControlLabel, FormGroup, FormHelperText, Form
 import React, {useState} from "react";
 import PropsCommon from "@/components/forms/interfaces/props-common.interface";
 import defaultCommonProps from "@/components/forms/entities/default-common-props.entity";
+import {InputProps as StandardInputProps} from "@mui/material/Input/Input";
 
 interface Props extends Partial<PropsCommon> {
     value?: boolean;
+    onChange?: StandardInputProps['onChange'];
 }
 
 const defaultProps: Props = {
@@ -50,7 +52,9 @@ export default function InputCheckboxField(
                     control={
                         <Checkbox
                             value={inputState.value}
-                            // checked={inputState.value}
+                            inputProps={
+                                {readOnly: props.readonly,}
+                            }
                             onChange={handleFieldChange}
                         />
                     }

@@ -17,6 +17,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import CardItemInputText from "@/components/forms/CarItemInputText";
 import CardItemInputSelect from "@/components/forms/CarItemInputSelect";
 import Item from "@/components/Item";
+import CardItemInputCheckbox from "@/components/forms/CarItemInputCheckbox";
 
 export default function CardItemInput(
     propsIn: Readonly<{
@@ -33,7 +34,9 @@ export default function CardItemInput(
     const inputsTypesAvailable = [
         {key: 'input_text', value: 'Texto Simple'},
         {key: 'input_textarea', value: 'Texto Multilinea'},
+        {key: 'input_numeric', value: 'Número'},
         {key: 'input_select', value: 'Lista desplegable'},
+        {key: 'input_checkbox', value: 'Checkbox'},
     ];
 
     const [inputType, setInputType]: [string, (value: (((prevState: string) => string) | string)) => void] = React.useState(propsIn.question.type || 'input_text');
@@ -46,14 +49,19 @@ export default function CardItemInput(
             case 'input_radio':
                 return (<p>TODO: Input radio</p>)
             case 'input_checkbox':
-                return (<p>TODO: Input checkbox</p>)
+                return <CardItemInputCheckbox question={propsIn.question} />
             default:
-                return <CardItemInputText question={propsIn.question}/>;
+                return <CardItemInputText question={propsIn.question}/>
         }
     }
 
     const handleInputTypeChange = (e: SelectChangeEvent<string>) => {
         setInputType(e.target.value)
+    }
+
+    const handleIsRequiredChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setIsRequired(e.target.checked);
+        propsIn.question.isRequired = e.target.checked;
     }
 
     return (
@@ -86,7 +94,7 @@ export default function CardItemInput(
                         <FormControlLabel
                             control={<Switch
                                 checked={isRequired}
-                                onChange={(e) => setIsRequired(e.target.checked)}
+                                onChange={(e) => handleIsRequiredChange(e)}
                                 size="small"
                             />}
                             label="Obligatorio"

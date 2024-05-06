@@ -1,27 +1,18 @@
-"use client";
-
 import InputTextField from "@/components/forms/InputTextField";
-import {
-    List,
-    ListItem,
-    ListItemButton,
-    ListItemText,
-    TextField
-} from "@mui/material";
 import React from "react";
-import IconButton from "@mui/material/IconButton";
-import ClearIcon from '@mui/icons-material/Clear';
 import SelectOption from "@/components/forms/interfaces/select-option.interface";
 import uuid from "react-native-uuid";
+import {Checkbox, List, ListItem, ListItemButton, ListItemText, TextField} from "@mui/material";
+import IconButton from "@mui/material/IconButton";
+import ClearIcon from "@mui/icons-material/Clear";
 
-export default function CardItemInputSelect(
+export default function CardItemInputCheckbox(
     propsIn: Readonly<{
         question: {
             id: string;
             title: string;
             placeholder: string;
             isRequired: boolean;
-            hasError?: boolean;
         }
     }>
 ): React.JSX.Element {
@@ -35,6 +26,7 @@ export default function CardItemInputSelect(
     const [options, setOptions]: [SelectOption[], (value: (((prevState: SelectOption[]) => SelectOption[]) | SelectOption[])) => void] = React.useState([
         {key: uuid.v4().toString(), value: ''},
     ]);
+
 
     const handleClickOptionInputText = (index: number): void => {
         if (index === options.length - 1) {
@@ -84,11 +76,8 @@ export default function CardItemInputSelect(
                 onChange={(e) => setPlaceholder(e.target.value)}
                 size="small"
             />
-            <h3>Agregar opciones para la lista desplegable</h3>
             <List sx={{width: '100%'}}>
                 {options.map((option: SelectOption, index: number) => {
-                    const labelId: string = `checkbox-list-label-${option.key}`;
-
                     return (
                         <ListItem
                             key={option.key}
@@ -105,7 +94,17 @@ export default function CardItemInputSelect(
                             disablePadding
                         >
                             <ListItemButton role={undefined} dense>
-                                <ListItemText id={labelId} primary={`${index + 1}`} sx={{mr: 1}}/>
+                                <ListItemText
+                                    sx={{mr: 1}}
+                                    id={`checkbox-list-label-${option.key}`}
+                                    primary={
+                                        <Checkbox
+                                            value=""
+                                            disabled
+                                            sx={{pl: 0}}
+                                        />
+                                    }
+                                />
 
                                 <TextField
                                     error={option.hasError}
