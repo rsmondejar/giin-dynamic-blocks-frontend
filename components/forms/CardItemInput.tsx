@@ -36,6 +36,7 @@ export default function CardItemInput(
         {key: 'input_text', value: 'Texto Simple'},
         {key: 'input_textarea', value: 'Texto Multilinea'},
         {key: 'input_numeric', value: 'Número'},
+        {key: 'input_date', value: 'Fecha'},
         {key: 'input_select', value: 'Lista desplegable'},
         {key: 'input_radio', value: 'Lista opciones'},
         {key: 'input_checkbox', value: 'Checkbox'},

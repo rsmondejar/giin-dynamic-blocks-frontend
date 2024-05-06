@@ -65,6 +65,15 @@ export default function StyleGuideFormsPage() {
                                 </Item>
                                 <Item>
                                     <InputTextField
+                                        label="Input type date"
+                                        placeholder="Esto es el placeholder"
+                                        hasError={false}
+                                        value={new Date().toISOString().split('T')[0]}
+                                        type="date"
+                                    />
+                                </Item>
+                                <Item>
+                                    <InputTextField
                                         label="Input type textarea multiline 4 rows"
                                         placeholder="Esto es el placeholder"
                                         hasError={false}
