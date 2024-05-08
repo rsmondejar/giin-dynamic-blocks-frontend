@@ -10,11 +10,17 @@ import Container from "@mui/material/Container";
 import FormCreateSpeedDial from "@/components/forms/FormCreateSpeedDial";
 import Item from "@/components/Item";
 import uuid from "react-native-uuid";
+import {useSnackbar} from "notistack";
 
 export default function FormsCreatePage() {
 
+    const { enqueueSnackbar } = useSnackbar();
+
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
+    const [id, setId] = useState('');
+    const [slug, setSlug] = useState('');
+    const [hasErrorTitle, setHasErrorTitle] = useState(false);
 
     const [questions, setQuestions] = useState([
         {
@@ -27,19 +33,37 @@ export default function FormsCreatePage() {
     ]);
 
     useEffect(() => {
-        setQuestions([
-            {
-                id: uuid.v4().toString(),
-                title: 'Pregunta 1',
-                placeholder: 'Pregunta 1...',
-                isRequired: false,
-                type: 'input_text',
-            },
-        ]);
+            setQuestions([
+                {
+                    id: uuid.v4().toString(),
+                    title: 'Pregunta 1',
+                    placeholder: 'Pregunta 1...',
+                    isRequired: false,
+                    type: 'input_text',
+                },
+            ]);
+
+            setId(uuid.v4().toString());
     }, []);
+
+    const generateSlug = () =>  {
+        return `${slugify(title)}-${id}`;
+    };
+
+    const slugify = (str: string) => {
+        return str
+            .toLowerCase()
+            .trim()
+            .replace(/[^\w\s-]/g, '')
+            .replace(/[\s_-]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+    }
+
 
     const handleFormTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setTitle(e.target.value);
+        setSlug(generateSlug());
+        setHasErrorTitle(e.target.value.length === 0);
     }
 
     const handleFormDescriptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,6 +97,40 @@ export default function FormsCreatePage() {
         setOpenSaveDialog(false);
     };
 
+    const handleConfirmSaveDialog = async () => {
+        setOpenSaveDialog(false);
+        enqueueSnackbar('Funcionalidad de guardar no implementada en esta versión.', { variant: 'info' });
+
+        let formHasError: boolean = false;
+
+        // Validations.
+        if (title.length === 0) {
+            enqueueSnackbar("El campo 'titulo del formulario' no puede estar vacío.", { variant: 'error' });
+            setHasErrorTitle(true);
+            formHasError = true;
+        }
+
+        if (questions.length === 0) {
+            enqueueSnackbar("Debe agregar al menos una pregunta.", { variant: 'error' });
+            formHasError = true;
+        }
+
+        if (formHasError) {
+            enqueueSnackbar("Revisar los errores del fomulario.", { variant: 'warning' });
+            return;
+        }
+
+        const form = {
+            id: id, // TODO: remove after testing
+            title: title,
+            slug: slug,
+            description: description,
+            questions: questions,
+        }
+
+        console.log(form);
+    }
+
     return (
         <Container maxWidth="lg">
             <Container maxWidth="md">
@@ -81,6 +139,7 @@ export default function FormsCreatePage() {
                         <h1>Crear nuevo formulario</h1>
                         <Item>
                             <InputTextField
+                                hasError={hasErrorTitle}
                                 value={title}
                                 required={true}
                                 label="Titulo del formulario"
@@ -98,19 +157,35 @@ export default function FormsCreatePage() {
                             />
                         </Item>
 
-                        <h2>Crear preguntas</h2>
+                        <h2>Preguntas:</h2>
 
-                        <Box sx={{width: '100%'}}>
-                            <Stack spacing={3}>
-                                {questions.map((question) => (
-                                    <CardItemInput
-                                        key={question.id}
-                                        question={question}
-                                        handleDeleteQuestion={handleDeleteQuestion}
-                                    />
-                                ))}
-                            </Stack>
-                        </Box>
+                        {questions.length > 0 && (
+                            <Box sx={{width: '100%'}}>
+                                <Stack spacing={3}>
+                                    {questions.map((question) => (
+                                        question.id.length > 0 && (
+                                            <CardItemInput
+                                                key={question.id}
+                                                question={question}
+                                                handleDeleteQuestion={handleDeleteQuestion}
+                                            />
+                                        )
+                                    ))}
+                                </Stack>
+                            </Box>
+                        ) || (
+                            <Box sx={{width: '100%'}}>
+                                <Stack spacing={3}>
+                                    <Item>
+                                        <Grid container direction="row" justifyContent="flex-start" mb={1}>
+                                            <Grid item>
+                                                <h3>Formulario sin preguntas</h3>
+                                            </Grid>
+                                        </Grid>
+                                    </Item>
+                                </Stack>
+                            </Box>
+                        )}
                     </Grid>
                 </Grid>
             </Container>
@@ -138,11 +213,20 @@ export default function FormsCreatePage() {
                     <Button onClick={handleCloseSaveDialog} variant="contained" color="secondary">
                         Cancelar
                     </Button>
-                    <Button onClick={handleCloseSaveDialog} variant="contained" autoFocus>
+                    <Button onClick={handleConfirmSaveDialog} variant="contained" autoFocus>
                         Guardar
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            <Button
+                onClick={handleConfirmSaveDialog}
+                variant="contained"
+                sx={{mt: 2}}
+            >
+                Pruebas envio de formulario
+            </Button>
+
         </Container>
     );
 }

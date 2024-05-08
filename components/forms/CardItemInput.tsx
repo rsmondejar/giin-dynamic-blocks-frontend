@@ -9,7 +9,7 @@ import {
     Grid,
     InputLabel,
     MenuItem, Select,
-    SelectChangeEvent,
+    SelectChangeEvent, Slide,
     Switch
 } from "@mui/material";
 import React from "react";
@@ -70,58 +70,60 @@ export default function CardItemInput(
     }
 
     return (
-        <Item>
-            <Grid container direction="row" justifyContent="flex-end" mb={1}>
-                <Grid item>
-                    <FormControl sx={{ mb: 1, minWidth: 300 }} size="small">
-                        <InputLabel id="demo-simple-select-label">Seleccionar tipo de pregunta</InputLabel>
-                        <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            value={inputType}
-                            label="Seleccionar tipo de pregunta"
-                            onChange={(e) => handleInputTypeChange(e)}
-                            autoWidth
-                        >
-                            {inputsTypesAvailable.map(({key, value}) => (
-                                <MenuItem key={key} value={key}>{value}</MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+        <Slide direction="up" in={true}>
+            <Item>
+                <Grid container direction="row" justifyContent="flex-end" mb={1}>
+                    <Grid item>
+                        <FormControl sx={{ mb: 1, minWidth: 300 }} size="small">
+                            <InputLabel id="demo-simple-select-label">Seleccionar tipo de pregunta</InputLabel>
+                            <Select
+                                labelId="demo-simple-select-label"
+                                id="demo-simple-select"
+                                value={inputType}
+                                label="Seleccionar tipo de pregunta"
+                                onChange={(e) => handleInputTypeChange(e)}
+                                autoWidth
+                            >
+                                {inputsTypesAvailable.map(({key, value}) => (
+                                    <MenuItem key={key} value={key}>{value}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                    </Grid>
                 </Grid>
-            </Grid>
 
-            {renderSwitch(inputType)}
+                {renderSwitch(inputType)}
 
-            <Grid container direction="row" justifyContent="space-between">
-                <Grid item>
-                    <FormGroup>
-                        <FormControlLabel
-                            control={<Switch
-                                checked={isRequired}
-                                onChange={(e) => handleIsRequiredChange(e)}
+                <Grid container direction="row" justifyContent="space-between">
+                    <Grid item>
+                        <FormGroup>
+                            <FormControlLabel
+                                control={<Switch
+                                    checked={isRequired}
+                                    onChange={(e) => handleIsRequiredChange(e)}
+                                    size="small"
+                                />}
+                                label="Obligatorio"
+                                labelPlacement="start"
+                            />
+                        </FormGroup>
+                    </Grid>
+                    <Grid item>
+                        <ButtonGroup size="small">
+                            <Button
+                                variant="text"
                                 size="small"
-                            />}
-                            label="Obligatorio"
-                            labelPlacement="start"
-                        />
-                    </FormGroup>
+                                aria-label="delete"
+                                color="error"
+                                onClick={() => propsIn.handleDeleteQuestion(propsIn.question.id)}
+                            >
+                                <DeleteIcon fontSize="small"/>
+                            </Button>
+                        </ButtonGroup>
+                    </Grid>
                 </Grid>
-                <Grid item>
-                    <ButtonGroup size="small">
-                        <Button
-                            variant="text"
-                            size="small"
-                            aria-label="delete"
-                            color="error"
-                            onClick={() => propsIn.handleDeleteQuestion(propsIn.question.id)}
-                        >
-                            <DeleteIcon fontSize="small"/>
-                        </Button>
-                    </ButtonGroup>
-                </Grid>
-            </Grid>
-            {propsIn.question.id}
-        </Item>
+                {propsIn.question.id}
+            </Item>
+        </Slide>
     )
 }

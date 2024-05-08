@@ -10,7 +10,10 @@ import PrintIcon from '@mui/icons-material/Print';
 import AddCommentIcon from '@mui/icons-material/AddComment';
 import { useSnackbar } from 'notistack';
 
-export default function FormCreateSpeedDial(propsIn: { handleAddQuestion: () => void; handleOpenSaveDialog: () => void;}) {
+export default function FormCreateSpeedDial(propsIn: Readonly<{
+    handleAddQuestion: () => void;
+    handleOpenSaveDialog: () => void;
+}>) {
 
     const { enqueueSnackbar } = useSnackbar();
 
@@ -24,14 +27,14 @@ export default function FormCreateSpeedDial(propsIn: { handleAddQuestion: () => 
 
     const handleClickAddQuestion = () => {
         propsIn.handleAddQuestion()
-        enqueueSnackbar('Funcionalidad de agregar pregunta no implementada en esta versión.', { variant: 'success' });
+        enqueueSnackbar('Pregunta añadida ...', { variant: 'success' });
     }
 
     return (
         <Box sx={{ height: 320, transform: 'translateZ(0px)', flexGrow: 1 }}>
             <SpeedDial
                 ariaLabel="SpeedDial basic example"
-                sx={{ position: 'absolute', bottom: 16, right: 16 }}
+                sx={{ position: 'fixed', bottom: 5, right: 5 }}
                 icon={<SpeedDialIcon />}
             >
                 <SpeedDialAction
