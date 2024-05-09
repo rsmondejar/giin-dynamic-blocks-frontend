@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useState, useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import InputTextField from "@/components/forms/InputTextField";
 import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid} from "@mui/material";
 import Box from "@mui/material/Box";
@@ -11,6 +11,8 @@ import FormCreateSpeedDial from "@/components/forms/FormCreateSpeedDial";
 import Item from "@/components/Item";
 import uuid from "react-native-uuid";
 import {useSnackbar} from "notistack";
+import Question from "@/components/forms/interfaces/question.interface";
+import QuestionType from "@/components/forms/enums/question-type-enum";
 
 export default function FormsCreatePage() {
 
@@ -22,41 +24,59 @@ export default function FormsCreatePage() {
     const [slug, setSlug] = useState('');
     const [hasErrorTitle, setHasErrorTitle] = useState(false);
 
+    const addQuestion = (): Question => ({
+        id: uuid.v4().toString(),
+        title: 'Pregunta 1',
+        placeholder: 'Pregunta 1...',
+        isRequired: false,
+        type: QuestionType.InputText,
+        order: 0,
+        options: null,
+    });
+
     const [questions, setQuestions] = useState([
         {
+            ...addQuestion(),
             id: '',
-            title: 'Pregunta 1',
-            placeholder: 'Pregunta 1...',
-            isRequired: false,
-            type: 'input_text',
-        }
+        },
     ]);
 
     useEffect(() => {
             setQuestions([
-                {
-                    id: uuid.v4().toString(),
-                    title: 'Pregunta 1',
-                    placeholder: 'Pregunta 1...',
-                    isRequired: false,
-                    type: 'input_text',
-                },
+                addQuestion(),
             ]);
 
             setId(uuid.v4().toString());
     }, []);
 
+    useEffect(() => {
+        questions.map((question, index) => {
+            question.order = index + 1;
+        })
+    },[questions])
+
     const generateSlug = () =>  {
         return `${slugify(title)}-${id}`;
     };
 
-    const slugify = (str: string) => {
-        return str
-            .toLowerCase()
-            .trim()
-            .replace(/[^\w\s-]/g, '')
-            .replace(/[\s_-]+/g, '-')
-            .replace(/^-+|-+$/g, '');
+    const slugify = (str: string): string => {
+        if (!str) {
+            return '';
+        }
+
+        // make lower case and trim
+        let slug = str.toLowerCase().trim();
+
+        // remove accents from charaters
+        slug = slug.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+        // replace invalid chars with spaces
+        slug = slug.replace(/[^a-z0-9\s-]/g, ' ').trim();
+
+        // replace multiple spaces or hyphens with a single hyphen
+        slug = slug.replace(/[\s-]+/g, '-');
+
+        return slug;
     }
 
 
@@ -74,12 +94,10 @@ export default function FormsCreatePage() {
         setQuestions([
             ...questions,
             {
-                id: uuid.v4().toString(),
+                ...addQuestion(),
                 title: 'Nueva pregunta',
-                placeholder: 'Nueva pregunta...',
-                isRequired: false,
-                type: 'input_text',
-            }
+                placeholder: '',
+            },
         ]);
     }
 
@@ -121,7 +139,6 @@ export default function FormsCreatePage() {
         }
 
         const form = {
-            id: id, // TODO: remove after testing
             title: title,
             slug: slug,
             description: description,

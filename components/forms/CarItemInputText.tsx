@@ -1,14 +1,10 @@
 import InputTextField from "@/components/forms/InputTextField";
 import React from "react";
+import Question from "@/components/forms/interfaces/question.interface";
 
 export default function CardItemInputText(
     propsIn: Readonly<{
-        question: {
-            id: string;
-            title: string;
-            placeholder: string;
-            isRequired: boolean;
-        }
+        question: Question
     }>
 ): React.JSX.Element {
 
@@ -16,7 +12,7 @@ export default function CardItemInputText(
     const defaultPlaceholder: string = "Texto opcional del placeholder...";
 
     const [title, setTitle]: [string, (value: (((prevState: string) => string) | string)) => void] = React.useState(propsIn?.question?.title || '');
-    const [placeholder, setPlaceholder]: [string, (value: (((prevState: string) => string) | string)) => void] = React.useState(propsIn?.question?.placeholder || '');
+    const [placeholder, setPlaceholder]: [string, (value: (((prevState: string) => string) | string)) => void] = React.useState(propsIn?.question?.placeholder ?? '');
 
     const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setTitle(e.target.value);

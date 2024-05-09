@@ -10,16 +10,15 @@ import {
 } from "@mui/material";
 import React, {useState} from "react";
 import uuid from "react-native-uuid";
-import SelectOption from "@/components/forms/interfaces/select-option.interface";
 import PropsCommon from "@/components/forms/interfaces/props-common.interface";
 import defaultCommonProps from "@/components/forms/entities/default-common-props.entity";
-import RadioOption from "@/components/forms/interfaces/radio-option.interface";
+import QuestionOption from "@/components/forms/interfaces/question-option.interface";
 import {SelectProps as StandardSelectProps} from "@mui/material/Select/Select";
 
 interface Props extends Partial<PropsCommon> {
     id: string;
     value?: string;
-    options: RadioOption[];
+    options: QuestionOption[];
     onChange?: StandardSelectProps['onChange'];
 }
 
@@ -68,7 +67,7 @@ export default function InputSelectField(
                 label={props.label}
                 onChange={handleFieldChange}
             >
-                {props.options.map((item: SelectOption) => (
+                {props.options.map((item: QuestionOption) => (
                     <MenuItem
                         key={item.key}
                         value={item.key}

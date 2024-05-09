@@ -19,40 +19,35 @@ import CardItemInputSelect from "@/components/forms/CarItemInputSelect";
 import Item from "@/components/Item";
 import CardItemInputCheckbox from "@/components/forms/CarItemInputCheckbox";
 import CardItemInputRadio from "@/components/forms/CarItemInputRadio";
+import Question from "@/components/forms/interfaces/question.interface";
+import QuestionType from "@/components/forms/enums/question-type-enum";
 
 export default function CardItemInput(
     propsIn: Readonly<{
-        question: {
-            id: string;
-            title: string;
-            placeholder: string;
-            isRequired: boolean;
-            type: string;
-            hasError?: boolean;
-        },
+        question: Question,
         handleDeleteQuestion: (id: string) => void;
     }>
 ): React.JSX.Element {
     const inputsTypesAvailable = [
-        {key: 'input_text', value: 'Texto Simple'},
-        {key: 'input_textarea', value: 'Texto Multilinea'},
-        {key: 'input_numeric', value: 'Número'},
-        {key: 'input_date', value: 'Fecha'},
-        {key: 'input_select', value: 'Lista desplegable'},
-        {key: 'input_radio', value: 'Lista opciones'},
-        {key: 'input_checkbox', value: 'Checkbox'},
+        {key: QuestionType.InputText, value: 'Texto Simple'},
+        {key: QuestionType.InputTextarea, value: 'Texto Multilinea'},
+        {key: QuestionType.InputNumeric, value: 'Número'},
+        {key: QuestionType.InputDate, value: 'Fecha'},
+        {key: QuestionType.InputSelect, value: 'Lista desplegable'},
+        {key: QuestionType.InputRadio, value: 'Lista opciones'},
+        {key: QuestionType.InputCheckbox, value: 'Checkbox'},
     ];
 
-    const [inputType, setInputType]: [string, (value: (((prevState: string) => string) | string)) => void] = React.useState(propsIn.question.type || 'input_text');
+    const [inputType, setInputType] = React.useState(propsIn.question.type || QuestionType.InputText);
     const [isRequired, setIsRequired]: [boolean, (value: (((prevState: boolean) => boolean) | boolean)) => void] = React.useState(propsIn?.question?.isRequired || false);
 
     const renderSwitch = (param: string) => {
         switch (param) {
-            case 'input_select':
+            case QuestionType.InputSelect:
                 return <CardItemInputSelect question={propsIn.question}/>
-            case 'input_radio':
+            case QuestionType.InputRadio:
                 return <CardItemInputRadio question={propsIn.question} />
-            case 'input_checkbox':
+            case QuestionType.InputCheckbox:
                 return <CardItemInputCheckbox question={propsIn.question} />
             default:
                 return <CardItemInputText question={propsIn.question}/>
@@ -60,8 +55,8 @@ export default function CardItemInput(
     }
 
     const handleInputTypeChange = (e: SelectChangeEvent<string>) => {
-        setInputType(e.target.value)
-        propsIn.question.type = e.target.value;
+        setInputType(e.target.value as QuestionType)
+        propsIn.question.type = e.target.value as QuestionType;
     }
 
     const handleIsRequiredChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -1,32 +1,44 @@
 import InputTextField from "@/components/forms/InputTextField";
-import React from "react";
+import React, {useEffect} from "react";
 import uuid from "react-native-uuid";
 import {List, ListItem, ListItemButton, ListItemText, Radio, TextField} from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import ClearIcon from "@mui/icons-material/Clear";
-import RadioOption from "@/components/forms/interfaces/radio-option.interface";
+import QuestionOption from "@/components/forms/interfaces/question-option.interface";
+import Question from "@/components/forms/interfaces/question.interface";
 
 export default function CardItemInputRadio(
     propsIn: Readonly<{
-        question: {
-            id: string;
-            title: string;
-            placeholder: string;
-            isRequired: boolean;
-            options?: RadioOption[];
-        }
+        question: Question
     }>
 ): React.JSX.Element {
 
     const defaultTitle: string = "Indicar el título de la pregunta";
     const defaultPlaceholder: string = "Texto opcional del placeholder...";
 
-    const [title, setTitle]: [string, (value: (((prevState: string) => string) | string)) => void] = React.useState(propsIn?.question?.title || '');
-    const [placeholder, setPlaceholder]: [string, (value: (((prevState: string) => string) | string)) => void] = React.useState(propsIn?.question?.placeholder || '');
+    const addOption = (): QuestionOption => ({
+        key: uuid.v4().toString(),
+        value: '',
+        order: 0,
+        hasError: false,
+    });
 
-    const [options, setOptions]: [RadioOption[], (value: (((prevState: RadioOption[]) => RadioOption[]) | RadioOption[])) => void] = React.useState([
-        {key: uuid.v4().toString(), value: ''},
+    const [title, setTitle]: [string, (value: (((prevState: string) => string) | string)) => void] = React.useState(propsIn?.question?.title || '');
+    const [placeholder, setPlaceholder]: [string, (value: (((prevState: string) => string) | string)) => void] = React.useState(propsIn?.question?.placeholder ?? '');
+
+    const [options, setOptions]: [QuestionOption[], (value: (((prevState: QuestionOption[]) => QuestionOption[]) | QuestionOption[])) => void] = React.useState([
+        addOption(),
     ]);
+
+    useEffect(() => {
+        setOptions(propsIn.question.options || [addOption()]);
+    }, [propsIn]);
+
+    useEffect(() => {
+        options.map((option, index) => {
+            option.order = index + 1;
+        })
+    },[options])
 
     const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setTitle(e.target.value);
@@ -43,24 +55,24 @@ export default function CardItemInputRadio(
         if (index === options.length - 1) {
             setOptions([
                 ...options,
-                {key: uuid.v4().toString(), value: ''}
+                addOption(),
             ]);
-            // propsIn.question.options = options;
         }
     }
 
     const handleClickOptionDelete = (index: number): void => {
         if (options.length > 1) {
-            setOptions(options.filter((option: RadioOption, i: number) => i !== index));
-            propsIn.question.options = options;
+            let tempOptions: QuestionOption[] = options.filter((option: QuestionOption, i: number) => i !== index)
+            setOptions(tempOptions);
+            propsIn.question.options = tempOptions;
         }
     }
 
     const handleFieldChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>, optionKey: string) => {
         // controlar que value sea único
-        const hasError: boolean = options.some((option: RadioOption) => option.key !== optionKey && option.value === e.target.value);
+        const hasError: boolean = options.some((option: QuestionOption) => option.key !== optionKey && option.value === e.target.value);
 
-        propsIn.question.options = options.map((option: RadioOption) => {
+        propsIn.question.options = options.map((option: QuestionOption) => {
             if (option.key === optionKey) {
                 return {
                     ...option,
@@ -91,8 +103,9 @@ export default function CardItemInputRadio(
                 onChange={handlePlaceholderChange}
                 size="small"
             />
-            <List sx={{width: '100%'}}>
-                {options.map((option: RadioOption, index: number) => {
+            <h3>Agregar opciones para los elementos radio</h3>
+            <List sx={{width: '100%'}} dense>
+                {options.map((option: QuestionOption, index: number) => {
                     return (
                         <ListItem
                             key={option.key}

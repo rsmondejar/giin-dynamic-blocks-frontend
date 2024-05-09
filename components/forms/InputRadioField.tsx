@@ -3,14 +3,14 @@
 import {FormControl, FormControlLabel, FormHelperText, FormLabel, Radio, RadioGroup} from "@mui/material";
 import React, {useState} from "react";
 import uuid from "react-native-uuid";
-import RadioOption from "@/components/forms/interfaces/radio-option.interface";
+import QuestionOption from "@/components/forms/interfaces/question-option.interface";
 import PropsCommon from "@/components/forms/interfaces/props-common.interface";
 import defaultCommonProps from "@/components/forms/entities/default-common-props.entity";
 import {SelectProps as StandardSelectProps} from "@mui/material/Select/Select";
 
 interface Props extends Partial<PropsCommon> {
     id: string;
-    options: RadioOption[];
+    options: QuestionOption[];
     row?: boolean;
     onChange?: StandardSelectProps['onChange'];
 }
@@ -59,7 +59,7 @@ export default function InputRadioField(
                 defaultValue="female"
                 name="radio-buttons-group"
             >
-                {props.options.map((item: RadioOption) => (
+                {props.options.map((item: QuestionOption) => (
                     <FormControlLabel
                         key={item.key}
                         value={item.key}

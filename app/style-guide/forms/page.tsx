@@ -3,8 +3,7 @@
 import InputTextField from "@/components/forms/InputTextField";
 import InputRadioField from "@/components/forms/InputRadioField";
 import InputSelectField from "@/components/forms/InputSelectField";
-import RadioOption from "@/components/forms/interfaces/radio-option.interface";
-import SelectOption from "@/components/forms/interfaces/select-option.interface";
+import QuestionOption from "@/components/forms/interfaces/question-option.interface";
 import InputCheckboxField from "@/components/forms/InputCheckboxField";
 import Container from "@mui/material/Container";
 import {Grid} from "@mui/material";
@@ -15,16 +14,10 @@ import React from "react";
 
 export default function StyleGuideFormsPage() {
 
-    const radioOptions: RadioOption[] = [
-        {key: 'key-1', value: 'Option 1'},
-        {key: 'key-2', value: 'Option 2 disabled', disabled: true},
-        {key: 'key-3', value: 'Option 3'},
-    ]
-
-    const selectOptions: SelectOption[] = [
-        {key: 'key-1', value: 'Option 1'},
-        {key: 'key-2', value: 'Option 2 disabled', disabled: true},
-        {key: 'key-3', value: 'Option 3'},
+    const options: QuestionOption[] = [
+        {key: 'key-1', value: 'Option 1', order: 1},
+        {key: 'key-2', value: 'Option 2 disabled', order: 2, disabled: true},
+        {key: 'key-3', value: 'Option 3', order: 3},
     ]
 
     return (
@@ -87,7 +80,7 @@ export default function StyleGuideFormsPage() {
                                         label="Input type radio column format"
                                         placeholder="Esto es el placeholder"
                                         hasError={false}
-                                        options={radioOptions}
+                                        options={options}
                                     />
                                 </Item>
                                 <Item>
@@ -97,7 +90,7 @@ export default function StyleGuideFormsPage() {
                                         placeholder="Esto es el placeholder"
                                         hasError={false}
                                         row={true}
-                                        options={radioOptions}
+                                        options={options}
                                     />
                                 </Item>
                                 <Item>
@@ -106,7 +99,7 @@ export default function StyleGuideFormsPage() {
                                         label="Input type select"
                                         placeholder="Esto es el placeholder"
                                         hasError={false}
-                                        options={selectOptions}
+                                        options={options}
                                         disabled={false}
                                         required={false}
                                         // value="key-3"
