@@ -1,8 +1,9 @@
 import type {Metadata} from "next";
 import "./globals.css";
 import Providers from "@/components/Providers";
-import React from "react";
+import React, {Suspense} from "react";
 import NavBar from "@/components/NavBar";
+import Loading from "@/app/loading";
 
 export const metadata: Metadata = {
     title: {
@@ -24,7 +25,9 @@ export default function RootLayout({children}: Readonly<{
         <body>
         <Providers>
             <NavBar />
-            {children}
+            <Suspense fallback={<Loading />}>
+                {children}
+            </Suspense>
         </Providers>
         </body>
         </html>

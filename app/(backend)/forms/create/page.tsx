@@ -13,10 +13,21 @@ import uuid from "react-native-uuid";
 import {useSnackbar} from "notistack";
 import Question from "@/components/forms/interfaces/question.interface";
 import QuestionType from "@/components/forms/enums/question-type-enum";
+import {useSession} from "next-auth/react";
+import LoadingBackdrop from "@/components/LoadingBackdrop";
+import FormCreate from "@/components/forms/interfaces/form-create.interface";
+import { useRouter } from 'next/navigation'
 
 export default function FormsCreatePage() {
+    useSession({
+        required: true,
+    });
+
+    const router = useRouter()
 
     const { enqueueSnackbar } = useSnackbar();
+
+    const [loading, setLoading] = useState(false);
 
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
@@ -42,11 +53,11 @@ export default function FormsCreatePage() {
     ]);
 
     useEffect(() => {
-            setQuestions([
-                addQuestion(),
-            ]);
+        setQuestions([
+            addQuestion(),
+        ]);
 
-            setId(uuid.v4().toString());
+        setId(uuid.v4().toString());
     }, []);
 
     useEffect(() => {
@@ -117,11 +128,47 @@ export default function FormsCreatePage() {
 
     const handleConfirmSaveDialog = async () => {
         setOpenSaveDialog(false);
-        enqueueSnackbar('Funcionalidad de guardar no implementada en esta versión.', { variant: 'info' });
 
+        if (await formValidation()) {
+            enqueueSnackbar("Revisar los errores del fomulario.", { variant: 'warning' });
+            return;
+        }
+
+        const form: FormCreate = {
+            title: title,
+            slug: slug,
+            description: description,
+            questions: questions,
+        }
+
+        try {
+            // enable loading screen
+            setLoading(true);
+
+            // send form to backend
+            const response = await sendForm(form);
+
+
+            if (response.errors) {
+                throw new Error(
+                    'Error al guardar el formulario: ' + (response.errors ?? '')
+                );
+            }
+
+            enqueueSnackbar('Formulario guardado correctamente.', { variant: 'success' });
+
+            // redirect to forms list
+            router.push('/dashboard');
+        } catch (error: any) {
+            enqueueSnackbar(error?.message ?? '', { variant: 'error' });
+        } finally {
+            // disable loading screen
+            setLoading(false);
+        }
+    }
+
+    const formValidation = async () => {
         let formHasError: boolean = false;
-
-        // Validations.
         if (title.length === 0) {
             enqueueSnackbar("El campo 'titulo del formulario' no puede estar vacío.", { variant: 'error' });
             setHasErrorTitle(true);
@@ -133,117 +180,111 @@ export default function FormsCreatePage() {
             formHasError = true;
         }
 
-        if (formHasError) {
-            enqueueSnackbar("Revisar los errores del fomulario.", { variant: 'warning' });
-            return;
-        }
+        return formHasError;
+    }
 
-        const form = {
-            title: title,
-            slug: slug,
-            description: description,
-            questions: questions,
-        }
+    const sendForm = async (form: FormCreate) => {
+        const formCreateResponse = await fetch(`/api/forms`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(form),
+        });
 
-        console.log(form);
+        return await formCreateResponse.json()
     }
 
     return (
-        <Container maxWidth="lg">
-            <Container maxWidth="md">
-                <Grid alignItems='center' justifyContent='center'>
-                    <Grid item>
-                        <h1>Crear nuevo formulario</h1>
-                        <Item>
-                            <InputTextField
-                                hasError={hasErrorTitle}
-                                value={title}
-                                required={true}
-                                label="Titulo del formulario"
-                                placeholder="Indicar el título del formulario..."
-                                onChange={handleFormTitleChange}
-                            />
-                            <InputTextField
-                                value={description}
-                                required={false}
-                                label="Descripción del formulario"
-                                placeholder="Indicar descripción del formulario..."
-                                onChange={handleFormDescriptionChange}
-                                type="multiline"
-                                rows={2}
-                            />
-                        </Item>
+        <>
+            <LoadingBackdrop open={loading} />
+            <Container maxWidth="lg">
+                <Container maxWidth="md">
+                    <Grid alignItems='center' justifyContent='center'>
+                        <Grid item>
+                            <h1>Crear nuevo formulario</h1>
+                            <Item>
+                                <InputTextField
+                                    hasError={hasErrorTitle}
+                                    value={title}
+                                    required={true}
+                                    label="Titulo del formulario"
+                                    placeholder="Indicar el título del formulario..."
+                                    onChange={handleFormTitleChange}
+                                />
+                                <InputTextField
+                                    value={description}
+                                    required={false}
+                                    label="Descripción del formulario"
+                                    placeholder="Indicar descripción del formulario..."
+                                    onChange={handleFormDescriptionChange}
+                                    type="multiline"
+                                    rows={2}
+                                />
+                            </Item>
 
-                        <h2>Preguntas:</h2>
+                            <h2>Preguntas:</h2>
 
-                        {questions.length > 0 && (
-                            <Box sx={{width: '100%'}}>
-                                <Stack spacing={3}>
-                                    {questions.map((question) => (
-                                        question.id.length > 0 && (
-                                            <CardItemInput
-                                                key={question.id}
-                                                question={question}
-                                                handleDeleteQuestion={handleDeleteQuestion}
-                                            />
-                                        )
-                                    ))}
-                                </Stack>
-                            </Box>
-                        ) || (
-                            <Box sx={{width: '100%'}}>
-                                <Stack spacing={3}>
-                                    <Item>
-                                        <Grid container direction="row" justifyContent="flex-start" mb={1}>
-                                            <Grid item>
-                                                <h3>Formulario sin preguntas</h3>
+                            {questions.length > 0 && (
+                                <Box sx={{width: '100%'}}>
+                                    <Stack spacing={3}>
+                                        {questions.map((question) => (
+                                            question.id.length > 0 && (
+                                                <CardItemInput
+                                                    key={question.id}
+                                                    question={question}
+                                                    handleDeleteQuestion={handleDeleteQuestion}
+                                                />
+                                            )
+                                        ))}
+                                    </Stack>
+                                </Box>
+                            ) || (
+                                <Box sx={{width: '100%'}}>
+                                    <Stack spacing={3}>
+                                        <Item>
+                                            <Grid container direction="row" justifyContent="flex-start" mb={1}>
+                                                <Grid item>
+                                                    <h3>Formulario sin preguntas</h3>
+                                                </Grid>
                                             </Grid>
-                                        </Grid>
-                                    </Item>
-                                </Stack>
-                            </Box>
-                        )}
+                                        </Item>
+                                    </Stack>
+                                </Box>
+                            )}
+                        </Grid>
                     </Grid>
-                </Grid>
+                </Container>
+                <Box sx={{position: 'fixed', bottom: 16, right: 16}}>
+                    <FormCreateSpeedDial
+                        handleAddQuestion={handleAddQuestion}
+                        handleOpenSaveDialog={handleOpenSaveDialog}
+                    />
+                </Box>
+                <Dialog
+                    open={openSaveDialog}
+                    onClose={handleCloseSaveDialog}
+                    aria-labelledby="alert-dialog-save-title"
+                    aria-describedby="alert-dialog-save-description"
+                >
+                    <DialogTitle id="alert-dialog-save-title">
+                        {"¿Usted está seguro de guardar el formulario?"}
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-save-description">
+                            Una vez guardado el formulario no se podrá modificar.
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleCloseSaveDialog} variant="contained" color="secondary">
+                            Cancelar
+                        </Button>
+                        <Button onClick={handleConfirmSaveDialog} variant="contained" autoFocus>
+                            Guardar
+                        </Button>
+                    </DialogActions>
+                </Dialog>
             </Container>
-            <Box sx={{position: 'fixed', bottom: 16, right: 16}}>
-                <FormCreateSpeedDial
-                    handleAddQuestion={handleAddQuestion}
-                    handleOpenSaveDialog={handleOpenSaveDialog}
-                />
-            </Box>
-            <Dialog
-                open={openSaveDialog}
-                onClose={handleCloseSaveDialog}
-                aria-labelledby="alert-dialog-save-title"
-                aria-describedby="alert-dialog-save-description"
-            >
-                <DialogTitle id="alert-dialog-save-title">
-                    {"¿Usted está seguro de guardar el formulario?"}
-                </DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="alert-dialog-save-description">
-                        Una vez guardado el formulario no se podrá modificar.
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseSaveDialog} variant="contained" color="secondary">
-                        Cancelar
-                    </Button>
-                    <Button onClick={handleConfirmSaveDialog} variant="contained" autoFocus>
-                        Guardar
-                    </Button>
-                </DialogActions>
-            </Dialog>
-
-            <Button
-                onClick={handleConfirmSaveDialog}
-                variant="contained"
-                sx={{mt: 2}}
-            >
-                Pruebas envio de formulario
-            </Button>
-
-        </Container>
+        </>
     );
 }

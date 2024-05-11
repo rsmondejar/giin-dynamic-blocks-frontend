@@ -27,9 +27,7 @@ export const authOptions: NextAuthOptions = {
                     body: JSON.stringify(credentials),
                     headers: {"Content-Type": "application/json"}
                 })
-                const response: LoginResponse = await res.json()
-
-                console.log("response", response)
+                const response: LoginResponse = await res.json();
 
                 // If no error and we have user data, return it
                 if (response.success && response.data?.user) {
