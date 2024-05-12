@@ -1,9 +1,8 @@
-import {NextRequest, NextResponse} from 'next/server'
+import {NextResponse} from 'next/server'
 import {BACKEND_URL} from "@/lib/Constants";
 import {getUserToken} from "@/app/api/get-token";
 
-export const POST = async (req: NextRequest) => {
-    const body = await req.json();
+export const GET = async () => {
     const token: string | null = await getUserToken();
 
     if (!token) {
@@ -13,18 +12,17 @@ export const POST = async (req: NextRequest) => {
     }
 
     try {
-        const formCreateResponse: Response = await fetch(`${BACKEND_URL}/forms`, {
-            method: 'POST',
+        const formCreateResponse: Response = await fetch(`${BACKEND_URL}/forms/find-all-by-user`, {
+            method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(body),
         });
 
         const response = await formCreateResponse.json();
 
-        if (formCreateResponse.status !== 201) {
+        if (formCreateResponse.status !== 200) {
             throw new Error(JSON.stringify(response?.message) ?? '');
         }
 
