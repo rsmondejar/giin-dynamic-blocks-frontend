@@ -5,15 +5,21 @@ import React, {useState} from "react";
 import PropsCommon from "@/components/forms/interfaces/props-common.interface";
 import defaultCommonProps from "@/components/forms/entities/default-common-props.entity";
 import {InputProps as StandardInputProps} from "@mui/material/Input/Input";
+import QuestionOption from "@/components/forms/interfaces/question-option.interface";
+import uuid from "react-native-uuid";
 
 interface Props extends Partial<PropsCommon> {
+    id: string;
     value?: boolean;
+    options: QuestionOption[];
     onChange?: StandardInputProps['onChange'];
 }
 
 const defaultProps: Props = {
     ...defaultCommonProps,
+    id: uuid.v4().toString(),
     value: false,
+    options: [],
 }
 
 export default function InputCheckboxField(
@@ -45,23 +51,30 @@ export default function InputCheckboxField(
             variant="standard"
             fullWidth
             error={props.hasError}
+            required={props.required}
+            disabled={props.disabled}
         >
             <FormLabel component="legend">{props.label}</FormLabel>
             <FormGroup>
-                <FormControlLabel
-                    control={
-                        <Checkbox
-                            value={inputState.value}
-                            inputProps={
-                                {readOnly: props.readonly,}
-                            }
-                            onChange={handleFieldChange}
-                        />
-                    }
-                    label={props.label}
-                    required={props.required}
-                    disabled={props.disabled}
-                />
+                {props.options.map((item: QuestionOption) => (
+                    <FormControlLabel
+                        key={item.key}
+                        control={
+                            <Checkbox
+                                value={item.key}
+                                inputProps={
+                                    {readOnly: props.readonly,}
+                                }
+                                onChange={handleFieldChange}
+                            />
+                        }
+                        label={item.value}
+                        disabled={item.disabled}
+                    />
+
+                ))}
+
+
             </FormGroup>
             <FormHelperText>{props.helperText}</FormHelperText>
         </FormControl>

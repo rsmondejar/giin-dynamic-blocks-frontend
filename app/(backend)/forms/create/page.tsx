@@ -38,7 +38,7 @@ export default function FormsCreatePage() {
     const addQuestion = (): Question => ({
         id: uuid.v4().toString(),
         title: 'Pregunta 1',
-        placeholder: 'Pregunta 1...',
+        placeholder: '',
         isRequired: false,
         type: QuestionType.InputText,
         order: 0,
@@ -106,7 +106,7 @@ export default function FormsCreatePage() {
             ...questions,
             {
                 ...addQuestion(),
-                title: 'Nueva pregunta',
+                title: 'Pregunta ' + (questions.length + 1),
                 placeholder: '',
             },
         ]);

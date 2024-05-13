@@ -117,7 +117,6 @@ export default function CardItemInput(
                         </ButtonGroup>
                     </Grid>
                 </Grid>
-                {propsIn.question.id}
             </Item>
         </Slide>
     )

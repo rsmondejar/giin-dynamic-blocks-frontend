@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from 'react';
-import {alpha} from '@mui/material/styles';
+import {alpha,styled} from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -25,25 +25,27 @@ import Link from "next/link";
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import Button from "@mui/material/Button";
 import {Chip, Skeleton} from "@mui/material";
-import {styled} from '@mui/material/styles';
 
+interface Author {
+    id: string;
+    name: string;
+    lastName: string;
+}
+
+interface CountMetrics {
+    formSubmission: number;
+    formsRoles: number;
+}
 
 interface Data {
     id: string;
     title: string;
     slug: string;
-    author: {
-        id: string;
-        name: string;
-        lastName: string;
-    };
+    author: Author;
     isPublished: boolean;
     createdAt: string;
-    formsRoles: any; // TODO
-    _count: {
-        formSubmission: number;
-        formsRoles: number;
-    };
+    formsRoles: any;
+    _count: CountMetrics;
 }
 
 interface HeadCell {
@@ -92,8 +94,8 @@ function getComparator<Key extends keyof any>(
     order: Order,
     orderBy: Key,
 ): (
-    a: { [key in Key]: number | string },
-    b: { [key in Key]: number | string },
+    a: { [key in Key]: number | string | Author | boolean | CountMetrics },
+    b: { [key in Key]: number | string | Author | boolean | CountMetrics},
 ) => number {
     return order === 'desc'
         ? (a, b) => descendingComparator(a, b, orderBy)
@@ -222,7 +224,7 @@ const EnhancedTableHead = (props: EnhancedTableProps) => {
     );
 }
 
-function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
+function EnhancedTableToolbar(props: Readonly<EnhancedTableToolbarProps>) {
     const {numSelected} = props;
 
     return (
@@ -278,7 +280,7 @@ export default function DataTable() {
     const [orderBy, setOrderBy] = React.useState<keyof Data>('title');
     const [selected, setSelected] = React.useState<readonly string[]>([]);
     const [page, setPage] = React.useState(0);
-    const [dense, setDense] = React.useState(false);
+    const [dense] = React.useState(false);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
 
@@ -346,10 +348,6 @@ export default function DataTable() {
         setPage(0);
     };
 
-    const handleChangeDense = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setDense(event.target.checked);
-    };
-
     const isSelected = (id: string) => selected.indexOf(id) !== -1;
 
     // Avoid a layout jump when reaching the last page with empty rows.
@@ -387,100 +385,95 @@ export default function DataTable() {
                             rowCount={rows.length}
                         />
                         <TableBody>
-                            {rows.length > 0 && (
-                                <>
-                                    {visibleRows.map((row: Data, index: number) => {
-                                        const isItemSelected: boolean = isSelected(row.id);
-                                        const labelId: string = `enhanced-table-checkbox-${index}`;
+                            {/* @ts-ignore */}
+                            {rows.length > 0 && visibleRows.map((row: Data) => {
+                                const isItemSelected: boolean = isSelected(row.id);
+                                const labelId: string = `enhanced-table-checkbox-${row.id}`;
 
-                                        return (
-                                            <StyledTableRow
-                                                hover
-                                                onClick={(event) => handleClick(event, row.id)}
-                                                role="checkbox"
-                                                aria-checked={isItemSelected}
-                                                tabIndex={-1}
-                                                key={index}
-                                                selected={isItemSelected}
-                                                sx={{cursor: 'pointer'}}
-                                            >
-                                                <StyledTableCell padding="checkbox">
-                                                    <Checkbox
-                                                        color="primary"
-                                                        checked={isItemSelected}
-                                                        inputProps={{
-                                                            'aria-labelledby': labelId,
-                                                        }}
-                                                    />
-                                                </StyledTableCell>
-                                                <StyledTableCell
-                                                    component="th"
-                                                    id={labelId}
-                                                    scope="row"
-                                                    padding="none"
-                                                >
-                                                    {row.title}
-                                                </StyledTableCell>
-                                                <StyledTableCell align="left">
-                                                    <Button
-                                                        href={`/formularios/${row.slug}`}
-                                                        target="_blank"
-                                                        component={Link}
-                                                        sx={{display: 'flex', justifyContent: 'flex-start'}}
-                                                    >
-                                                        <OpenInNewIcon/>
-                                                        {row.slug}
-                                                    </Button>
-                                                </StyledTableCell>
-                                                <StyledTableCell align="left">{row.author?.name ?? ''}</StyledTableCell>
-                                                <StyledTableCell
-                                                    align="center">{row.isPublished ? 'Sí' : 'No'}</StyledTableCell>
-                                                <StyledTableCell
-                                                    align="left">{parseDate(row.createdAt)}</StyledTableCell>
-                                                <StyledTableCell align="center">
-                                                    <Chip
-                                                        label={row?._count?.formSubmission ?? 0}
-                                                        variant="outlined"
-                                                    />
-                                                </StyledTableCell>
-                                            </StyledTableRow>
-                                        );
-                                    })}
-                                </>
-                            ) || (
-                                [...Array(defaultSkeletonRows)].map((index) => (
-                                    <>
-                                        <StyledTableRow
-                                            key={index}
-                                            role="checkbox"
+                                return (
+                                    <TableRow
+                                        hover
+                                        onClick={(event) => handleClick(event, row.id)}
+                                        role="checkbox"
+                                        aria-checked={isItemSelected}
+                                        tabIndex={-1}
+                                        key={row.id}
+                                        selected={isItemSelected}
+                                        sx={{cursor: 'pointer'}}
+                                    >
+                                        <StyledTableCell padding="checkbox">
+                                            <Checkbox
+                                                color="primary"
+                                                checked={isItemSelected}
+                                                inputProps={{
+                                                    'aria-labelledby': labelId,
+                                                }}
+                                            />
+                                        </StyledTableCell>
+                                        <StyledTableCell
+                                            component="th"
+                                            id={labelId}
+                                            scope="row"
+                                            padding="none"
                                         >
-                                            <StyledTableCell padding="checkbox">
-                                                <Skeleton variant="rectangular"/>
-                                            </StyledTableCell>
-                                            <StyledTableCell
-                                                component="th"
-                                                scope="row"
-                                                padding="none"
+                                            {row.title}
+                                        </StyledTableCell>
+                                        <StyledTableCell align="left">
+                                            <Button
+                                                href={`/formularios/${row.slug}`}
+                                                target="_blank"
+                                                component={Link}
+                                                sx={{display: 'flex', justifyContent: 'flex-start'}}
                                             >
-                                                <Skeleton variant="rectangular"/>
-                                            </StyledTableCell>
-                                            <StyledTableCell align="left">
-                                                <Skeleton variant="rectangular"/>
-                                            </StyledTableCell>
-                                            <StyledTableCell align="left">
-                                                <Skeleton variant="rectangular"/>
-                                            </StyledTableCell>
-                                            <StyledTableCell align="center">
-                                                <Skeleton variant="rectangular"/>
-                                            </StyledTableCell>
-                                            <StyledTableCell align="left">
-                                                <Skeleton variant="rectangular"/>
-                                            </StyledTableCell>
-                                            <StyledTableCell align="center">
-                                                <Skeleton variant="rounded"/>
-                                            </StyledTableCell>
-                                        </StyledTableRow>
-                                    </>
+                                                <OpenInNewIcon/>
+                                                {row.slug}
+                                            </Button>
+                                        </StyledTableCell>
+                                        <StyledTableCell align="left">{row.author?.name ?? ''}</StyledTableCell>
+                                        <StyledTableCell
+                                            align="center">{row.isPublished ? 'Sí' : 'No'}</StyledTableCell>
+                                        <StyledTableCell
+                                            align="left">{parseDate(row.createdAt)}</StyledTableCell>
+                                        <StyledTableCell align="center">
+                                            <Chip
+                                                label={row?._count?.formSubmission ?? 0}
+                                                variant="outlined"
+                                            />
+                                        </StyledTableCell>
+                                    </TableRow>
+                                );
+                            }) || (
+                                [...Array(defaultSkeletonRows)].map((item, index) => (
+                                    <StyledTableRow
+                                        key={index}
+                                        role="checkbox"
+                                    >
+                                        <StyledTableCell padding="checkbox">
+                                            <Skeleton variant="rectangular"/>
+                                        </StyledTableCell>
+                                        <StyledTableCell
+                                            component="th"
+                                            scope="row"
+                                            padding="none"
+                                        >
+                                            <Skeleton variant="rectangular"/>
+                                        </StyledTableCell>
+                                        <StyledTableCell align="left">
+                                            <Skeleton variant="rectangular"/>
+                                        </StyledTableCell>
+                                        <StyledTableCell align="left">
+                                            <Skeleton variant="rectangular"/>
+                                        </StyledTableCell>
+                                        <StyledTableCell align="center">
+                                            <Skeleton variant="rectangular"/>
+                                        </StyledTableCell>
+                                        <StyledTableCell align="left">
+                                            <Skeleton variant="rectangular"/>
+                                        </StyledTableCell>
+                                        <StyledTableCell align="center">
+                                            <Skeleton variant="rounded"/>
+                                        </StyledTableCell>
+                                    </StyledTableRow>
                                 ))
                             )}
                             {emptyRows > 0 && (
@@ -504,7 +497,6 @@ export default function DataTable() {
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
-
             </Paper>
         </Box>
     );
