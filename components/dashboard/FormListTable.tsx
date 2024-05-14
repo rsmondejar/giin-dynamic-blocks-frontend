@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from 'react';
-import {alpha,styled} from '@mui/material/styles';
+import {useState} from 'react';
+import {alpha, styled} from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -14,17 +15,16 @@ import TableSortLabel from '@mui/material/TableSortLabel';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
-import Checkbox from '@mui/material/Checkbox';
-import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
 import DeleteIcon from '@mui/icons-material/Delete';
-import FilterListIcon from '@mui/icons-material/FilterList';
 import {visuallyHidden} from '@mui/utils';
 import moment from "moment/moment";
 import Link from "next/link";
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import Button from "@mui/material/Button";
-import {Chip, Skeleton} from "@mui/material";
+import {Chip, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Skeleton} from "@mui/material";
+import LoadingBackdrop from "@/components/LoadingBackdrop";
+import {useSnackbar} from "notistack";
+import uuid from "react-native-uuid";
 
 interface Author {
     id: string;
@@ -164,21 +164,13 @@ const headCells: readonly HeadCell[] = [
 ];
 
 interface EnhancedTableProps {
-    numSelected: number;
     onRequestSort: (event: React.MouseEvent<unknown>, property: keyof Data) => void;
-    onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void;
     order: Order;
     orderBy: string;
-    rowCount: number;
-}
-
-interface EnhancedTableToolbarProps {
-    numSelected: number;
 }
 
 const EnhancedTableHead = (props: EnhancedTableProps) => {
-    const {onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort} =
-        props;
+    const {order, orderBy, onRequestSort} = props;
     const createSortHandler =
         (property: keyof Data) => (event: React.MouseEvent<unknown>) => {
             onRequestSort(event, property);
@@ -187,17 +179,6 @@ const EnhancedTableHead = (props: EnhancedTableProps) => {
     return (
         <TableHead>
             <TableRow>
-                <TableCell padding="checkbox">
-                    <Checkbox
-                        color="primary"
-                        indeterminate={numSelected > 0 && numSelected < rowCount}
-                        checked={rowCount > 0 && numSelected === rowCount}
-                        onChange={onSelectAllClick}
-                        inputProps={{
-                            'aria-label': 'seleccionar formulario',
-                        }}
-                    />
-                </TableCell>
                 {headCells.map((headCell) => (
                     <TableCell
                         key={headCell.id}
@@ -219,66 +200,46 @@ const EnhancedTableHead = (props: EnhancedTableProps) => {
                         </TableSortLabel>
                     </TableCell>
                 ))}
+                <TableCell
+                    align='center'
+                    padding='normal'
+                >
+                    Acciones
+                </TableCell>
             </TableRow>
         </TableHead>
     );
 }
 
-function EnhancedTableToolbar(props: Readonly<EnhancedTableToolbarProps>) {
-    const {numSelected} = props;
-
+function EnhancedTableToolbar() {
     return (
         <Toolbar
             sx={{
                 pl: {sm: 2},
                 pr: {xs: 1, sm: 1},
-                ...(numSelected > 0 && {
-                    bgcolor: (theme) =>
-                        alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity),
-                }),
+                bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity)
             }}
         >
-            {numSelected > 0 ? (
-                <Typography
-                    sx={{flex: '1 1 100%'}}
-                    color="inherit"
-                    variant="subtitle1"
-                    component="div"
-                >
-                    {numSelected} seleccionados
-                </Typography>
-            ) : (
-                <Typography
-                    sx={{flex: '1 1 100%'}}
-                    variant="h6"
-                    id="tableTitle"
-                    component="div"
-                >
-                    Formularios
-                </Typography>
-            )}
-            {numSelected > 0 ? (
-                <Tooltip title="Eliminar">
-                    <IconButton>
-                        <DeleteIcon/>
-                    </IconButton>
-                </Tooltip>
-            ) : (
-                <Tooltip title="Lista Filtrada">
-                    <IconButton>
-                        <FilterListIcon/>
-                    </IconButton>
-                </Tooltip>
-            )}
+            <Typography
+                sx={{flex: '1 1 100%'}}
+                variant="h6"
+                id="tableTitle"
+                component="div"
+            >
+                Formularios
+            </Typography>
         </Toolbar>
     );
 }
 
-export default function DataTable() {
+export default function FormListTable() {
+    const { enqueueSnackbar } = useSnackbar();
+    const [loading, setLoading] = useState(false);
+
     const [rows, setRows] = React.useState([] as Data[]);
     const [order, setOrder] = React.useState<Order>('asc');
     const [orderBy, setOrderBy] = React.useState<keyof Data>('title');
-    const [selected, setSelected] = React.useState<readonly string[]>([]);
+    const [selected] = React.useState<readonly string[]>([]);
     const [page, setPage] = React.useState(0);
     const [dense] = React.useState(false);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
@@ -311,34 +272,6 @@ export default function DataTable() {
         setOrderBy(property);
     };
 
-    const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.checked) {
-            const newSelected: string[] = rows.map((n) => n.id);
-            setSelected(newSelected);
-            return;
-        }
-        setSelected([]);
-    };
-
-    const handleClick = (event: React.MouseEvent<unknown>, id: string) => {
-        const selectedIndex = selected.indexOf(id);
-        let newSelected: readonly string[] = [];
-
-        if (selectedIndex === -1) {
-            newSelected = newSelected.concat(selected, id);
-        } else if (selectedIndex === 0) {
-            newSelected = newSelected.concat(selected.slice(1));
-        } else if (selectedIndex === selected.length - 1) {
-            newSelected = newSelected.concat(selected.slice(0, -1));
-        } else if (selectedIndex > 0) {
-            newSelected = newSelected.concat(
-                selected.slice(0, selectedIndex),
-                selected.slice(selectedIndex + 1),
-            );
-        }
-        setSelected(newSelected);
-    };
-
     const handleChangePage = (event: unknown, newPage: number) => {
         setPage(newPage);
     };
@@ -365,139 +298,215 @@ export default function DataTable() {
 
     const parseDate = (stringDate: string) => moment(stringDate).format('DD/MM/YYYY HH:mm:ss');
 
-    return (
-        <Box sx={{width: '100%'}}>
-            <Paper sx={{width: '100%', mb: 2}}>
-                <EnhancedTableToolbar numSelected={selected.length}/>
-                <TableContainer>
-                    <Table
-                        stickyHeader
-                        sx={{minWidth: 750}}
-                        aria-labelledby="tableTitle"
-                        size={dense ? 'small' : 'medium'}
-                    >
-                        <EnhancedTableHead
-                            numSelected={selected.length}
-                            order={order}
-                            orderBy={orderBy}
-                            onSelectAllClick={handleSelectAllClick}
-                            onRequestSort={handleRequestSort}
-                            rowCount={rows.length}
-                        />
-                        <TableBody>
-                            {/* @ts-ignore */}
-                            {rows.length > 0 && visibleRows.map((row: Data) => {
-                                const isItemSelected: boolean = isSelected(row.id);
-                                const labelId: string = `enhanced-table-checkbox-${row.id}`;
+    const [openDeleteDialog, setOpenDeleteDialog] = React.useState(false);
+    const [deleteFormItem, setDeleteFormItem] = React.useState({} as Data);
 
-                                return (
-                                    <TableRow
-                                        hover
-                                        onClick={(event) => handleClick(event, row.id)}
-                                        role="checkbox"
-                                        aria-checked={isItemSelected}
-                                        tabIndex={-1}
-                                        key={row.id}
-                                        selected={isItemSelected}
-                                        sx={{cursor: 'pointer'}}
-                                    >
-                                        <StyledTableCell padding="checkbox">
-                                            <Checkbox
-                                                color="primary"
-                                                checked={isItemSelected}
-                                                inputProps={{
-                                                    'aria-labelledby': labelId,
-                                                }}
-                                            />
-                                        </StyledTableCell>
-                                        <StyledTableCell
-                                            component="th"
-                                            id={labelId}
-                                            scope="row"
-                                            padding="none"
+    const handleOpenDeleteDialog = (form: Data) => {
+        setOpenDeleteDialog(true);
+        setDeleteFormItem(form);
+    };
+
+    const handleCloseDeleteDialog = () => {
+        setOpenDeleteDialog(false);
+    };
+
+    const handleConfirmDeleteDialog = async () => {
+        setOpenDeleteDialog(false);
+
+        try {
+            // enable loading screen
+            setLoading(true);
+
+            console.log("deleteFormItem", deleteFormItem);
+
+            // send form to backend
+            const response = await sendDeleteItem(deleteFormItem);
+
+            console.log("response", response);
+
+
+            if (response.errors) {
+                throw new Error(
+                    'Error al eliminar el formulario: ' + (response.errors ?? '')
+                );
+            }
+
+            enqueueSnackbar('Formulario eliminado correctamente.', { variant: 'success' });
+
+            // Recargar los formularios
+            await getForms().then((data) => {
+                setRows(data);
+                enqueueSnackbar('Listado de formulariosa actualizado.', { variant: 'success' });
+            });
+        } catch (error: any) {
+            enqueueSnackbar(error?.message ?? '', { variant: 'error' });
+        } finally {
+            // disable loading screen
+            setLoading(false);
+            setDeleteFormItem({} as Data);
+        }
+    }
+
+    const sendDeleteItem = async (form: Data) => {
+        const formCreateResponse = await fetch(`/api/forms/${form.id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(form),
+        });
+
+        return await formCreateResponse.json()
+    }
+
+    return (
+        <>
+            <LoadingBackdrop open={loading} />
+            <Box sx={{width: '100%'}}>
+                <Paper sx={{width: '100%', mb: 2}}>
+                    <EnhancedTableToolbar/>
+                    <TableContainer>
+                        <Table
+                            stickyHeader
+                            sx={{minWidth: 750}}
+                            aria-labelledby="tableTitle"
+                            size={dense ? 'small' : 'medium'}
+                        >
+                            <EnhancedTableHead
+                                order={order}
+                                orderBy={orderBy}
+                                onRequestSort={handleRequestSort}
+                            />
+                            <TableBody>
+                                {/* @ts-ignore */}
+                                {rows.length > 0 && visibleRows.map((row: Data) => {
+                                    const isItemSelected: boolean = isSelected(row.id);
+                                    const labelId: string = `enhanced-table-checkbox-${row.id}`;
+
+                                    return (
+                                        <TableRow
+                                            hover
+                                            aria-checked={isItemSelected}
+                                            tabIndex={-1}
+                                            key={row.id}
+                                            selected={isItemSelected}
+                                            sx={{cursor: 'pointer'}}
                                         >
-                                            {row.title}
-                                        </StyledTableCell>
-                                        <StyledTableCell align="left">
-                                            <Button
-                                                href={`/formularios/${row.slug}`}
-                                                target="_blank"
-                                                component={Link}
-                                                sx={{display: 'flex', justifyContent: 'flex-start'}}
+                                            <StyledTableCell
+                                                component="th"
+                                                id={labelId}
+                                                scope="row"
                                             >
-                                                <OpenInNewIcon/>
-                                                {row.slug}
-                                            </Button>
-                                        </StyledTableCell>
-                                        <StyledTableCell align="left">{row.author?.name ?? ''}</StyledTableCell>
-                                        <StyledTableCell
-                                            align="center">{row.isPublished ? 'Sí' : 'No'}</StyledTableCell>
-                                        <StyledTableCell
-                                            align="left">{parseDate(row.createdAt)}</StyledTableCell>
-                                        <StyledTableCell align="center">
-                                            <Chip
-                                                label={row?._count?.formSubmission ?? 0}
-                                                variant="outlined"
-                                            />
-                                        </StyledTableCell>
-                                    </TableRow>
-                                );
-                            }) || (
-                                [...Array(defaultSkeletonRows)].map((item, index) => (
+                                                {row.title}
+                                            </StyledTableCell>
+                                            <StyledTableCell align="left">
+                                                <Button
+                                                    href={`/formularios/${row.slug}`}
+                                                    target="_blank"
+                                                    component={Link}
+                                                    sx={{display: 'flex', justifyContent: 'flex-start'}}
+                                                >
+                                                    <OpenInNewIcon/>
+                                                    {row.slug}
+                                                </Button>
+                                            </StyledTableCell>
+                                            <StyledTableCell align="left">{row.author?.name ?? ''}</StyledTableCell>
+                                            <StyledTableCell
+                                                align="center">{row.isPublished ? 'Sí' : 'No'}</StyledTableCell>
+                                            <StyledTableCell
+                                                align="left">{parseDate(row.createdAt)}</StyledTableCell>
+                                            <StyledTableCell align="center">
+                                                <Chip
+                                                    label={row?._count?.formSubmission ?? 0}
+                                                    variant="outlined"
+                                                />
+                                            </StyledTableCell>
+                                            <StyledTableCell
+                                                component="th"
+                                                id={labelId}
+                                                scope="row"
+                                            >
+                                                <Button onClick={() => handleOpenDeleteDialog(row)}>
+                                                    <DeleteIcon color="error" />
+                                                </Button>
+                                            </StyledTableCell>
+                                        </TableRow>
+                                    );
+                                }) || (
+                                    [...Array(defaultSkeletonRows)].map(() => (
+                                        <StyledTableRow key={uuid.v4().toString()}>
+                                            <StyledTableCell component="th" scope="row">
+                                                <Skeleton variant="rectangular"/>
+                                            </StyledTableCell>
+                                            <StyledTableCell align="left">
+                                                <Skeleton variant="rectangular"/>
+                                            </StyledTableCell>
+                                            <StyledTableCell align="left">
+                                                <Skeleton variant="rectangular"/>
+                                            </StyledTableCell>
+                                            <StyledTableCell align="center">
+                                                <Skeleton variant="rectangular"/>
+                                            </StyledTableCell>
+                                            <StyledTableCell align="left">
+                                                <Skeleton variant="rectangular"/>
+                                            </StyledTableCell>
+                                            <StyledTableCell align="center">
+                                                <Skeleton variant="rounded"/>
+                                            </StyledTableCell>
+                                            <StyledTableCell align="center">
+                                                <Skeleton variant="rounded"/>
+                                            </StyledTableCell>
+                                        </StyledTableRow>
+                                    ))
+                                )}
+                                {emptyRows > 0 && (
                                     <StyledTableRow
-                                        key={index}
-                                        role="checkbox"
+                                        style={{
+                                            height: (dense ? 33 : 53) * emptyRows,
+                                        }}
                                     >
-                                        <StyledTableCell padding="checkbox">
-                                            <Skeleton variant="rectangular"/>
-                                        </StyledTableCell>
-                                        <StyledTableCell
-                                            component="th"
-                                            scope="row"
-                                            padding="none"
-                                        >
-                                            <Skeleton variant="rectangular"/>
-                                        </StyledTableCell>
-                                        <StyledTableCell align="left">
-                                            <Skeleton variant="rectangular"/>
-                                        </StyledTableCell>
-                                        <StyledTableCell align="left">
-                                            <Skeleton variant="rectangular"/>
-                                        </StyledTableCell>
-                                        <StyledTableCell align="center">
-                                            <Skeleton variant="rectangular"/>
-                                        </StyledTableCell>
-                                        <StyledTableCell align="left">
-                                            <Skeleton variant="rectangular"/>
-                                        </StyledTableCell>
-                                        <StyledTableCell align="center">
-                                            <Skeleton variant="rounded"/>
-                                        </StyledTableCell>
+                                        <StyledTableCell colSpan={6}/>
                                     </StyledTableRow>
-                                ))
-                            )}
-                            {emptyRows > 0 && (
-                                <StyledTableRow
-                                    style={{
-                                        height: (dense ? 33 : 53) * emptyRows,
-                                    }}
-                                >
-                                    <StyledTableCell colSpan={6}/>
-                                </StyledTableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-                <TablePagination
-                    rowsPerPageOptions={[5, 10, 25, 50, {value: -1, label: 'Todos'}]}
-                    component="div"
-                    count={rows.length}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                />
-            </Paper>
-        </Box>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                    <TablePagination
+                        rowsPerPageOptions={[5, 10, 25, 50, {value: -1, label: 'Todos'}]}
+                        component="div"
+                        count={rows.length}
+                        rowsPerPage={rowsPerPage}
+                        page={page}
+                        onPageChange={handleChangePage}
+                        onRowsPerPageChange={handleChangeRowsPerPage}
+                    />
+                </Paper>
+                <Dialog
+                    open={openDeleteDialog}
+                    onClose={handleCloseDeleteDialog}
+                    aria-labelledby="alert-dialog-delete-title"
+                    aria-describedby="alert-dialog-delete-description"
+                >
+                    <DialogTitle id="alert-dialog-delete-title">
+                        {"¿Usted está seguro de eliminar el formulario?"}
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-delete-description">
+                            El formulario <strong>&quot;{deleteFormItem.title ?? ''}&quot;</strong> será eliminado.
+                            <br/>
+                            Una vez eliminado el formulario no se podrá recuperar.
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleCloseDeleteDialog} variant="contained" color="secondary">
+                            Cancelar
+                        </Button>
+                        <Button onClick={handleConfirmDeleteDialog} variant="contained" autoFocus>
+                            Eliminar
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            </Box>
+        </>
     );
 }
