@@ -9,6 +9,7 @@ export default interface QuestionUserView {
     type: QuestionType;
     order: number;
     value?: string|boolean|null;
+    values?: string[]|boolean[]|null;
     hasError?: boolean;
     options?: QuestionOption[] | null;
 }
