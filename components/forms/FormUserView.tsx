@@ -17,13 +17,11 @@ import Header from "@/components/Header";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import QuestionType from "@/components/forms/enums/question-type-enum";
-import InputTextField from "@/components/forms/InputTextField";
-import InputRadioField from "@/components/forms/InputRadioField";
-import InputSelectField from "@/components/forms/InputSelectField";
-import InputCheckboxField from "@/components/forms/InputCheckboxField";
 import QuestionUserView from "@/components/forms/interfaces/question-user-view.interface";
 import Item from "@/components/Item";
 import Typography from "@mui/material/Typography";
+import CardItemInputUserView from "@/components/forms/CardItemInputUserView";
+import uuid from "react-native-uuid";
 
 export default function FormUserView(
     propsIn: Readonly<{
@@ -57,69 +55,59 @@ export default function FormUserView(
         });
     }, [slug]);
 
-    const renderSwitch = (question: QuestionUserView) => {
-        switch (question.type) {
-            case QuestionType.InputSelect:
-                return <InputSelectField
-                    id={question.id}
-                    label={question.title}
-                    placeholder={question.placeholder ?? ''}
-                    hasError={question.hasError}
-                    required={question.isRequired}
-                    value={question.value as string ?? ''}
-                    options={question.options ?? []}
-                    helperText={question.placeholder ?? ''}
-                />
-            case QuestionType.InputRadio:
-                return <InputRadioField
-                    id={question.id}
-                    label={question.title}
-                    placeholder={question.placeholder ?? ''}
-                    hasError={question.hasError}
-                    required={question.isRequired}
-                    value={question.value ?? null}
-                    options={question.options ?? []}
-                    helperText={question.placeholder ?? ''}
-                />
-            case QuestionType.InputCheckbox:
-                return <InputCheckboxField
-                    id={question.id}
-                    label={question.title}
-                    placeholder={question.placeholder ?? ''}
-                    hasError={question.hasError}
-                    required={question.isRequired}
-                    value={question.value as boolean ?? false}
-                    options={question.options ?? []}
-                    helperText={question.placeholder ?? ''}
-                />
-            default:
-                return <InputTextField
-                    id={question.id}
-                    label={question.title}
-                    placeholder={question.placeholder ?? ''}
-                    hasError={question.hasError}
-                    required={question.isRequired}
-                    value={question.value ?? ''}
-                    helperText={question.placeholder ?? ''}
-                />
-        }
-    }
-
     const [openSubmitDialog, setOpenSubmitDialog] = React.useState(false);
 
     const handleOpenSubmitDialog = () => {
-        setOpenSubmitDialog(true);
+        // setOpenSubmitDialog(true); // TODO: comentado temporalemnte para las pruebas
+        handleConfirmSubmitDialog(); // TODO: Borrar despues de terminar las pruebas
     };
 
     const handleCloseSubmitDialog = () => {
         setOpenSubmitDialog(false);
     };
 
+    type FormToSend = {
+        formId: string;
+        answers: QuestionAnswer[];
+    }
+
+    type QuestionAnswer = {
+        questionId: string;
+        value?: string|boolean|null;
+        values?: string[]|boolean[]|null;
+    }
+
     const handleConfirmSubmitDialog = async () => {
         console.log('Formulario enviado');
         setOpenSubmitDialog(false);
 
         // TODO: Validations
+
+        const formToSend: FormToSend = {
+            formId: form.id,
+            answers: form.questions.map((question: QuestionUserView) => {
+                let answer: QuestionAnswer = {
+                    questionId: question.id,
+                };
+
+                switch (question.type) {
+                    case QuestionType.InputSelect:
+                    case QuestionType.InputRadio:
+                        answer.value = question.value ?? null;
+                        break;
+                    case QuestionType.InputCheckbox:
+                        answer.values = question.values ?? null;
+                        break;
+                    default:
+                        answer.value = question.value ?? null;
+                        break;
+                }
+
+                return answer;
+            }),
+        }
+
+        console.log('formToSendAnswers', formToSend.answers);
 
         // TODO: Send Form
 
@@ -139,7 +127,7 @@ export default function FormUserView(
                                     {form.questions.map((question) => (
                                         <article key={question.id}>
                                             <Item>
-                                                {renderSwitch(question)}
+                                                <CardItemInputUserView question={question} />
                                             </Item>
                                         </article>
                                     ))}
@@ -162,8 +150,8 @@ export default function FormUserView(
 
                             <Box sx={{width: '100%', mt: 2}}>
                                 <Stack spacing={3}>
-                                    {[...Array(4)].map((item, index) => (
-                                        <article key={index}>
+                                    {[...Array(4)].map(() => (
+                                        <article key={uuid.v4().toString()}>
                                             <Item >
                                                 <Skeleton variant="rectangular" width="100%" height={50} animation="wave" sx={{mb: 1}} />
                                                 <Skeleton variant="rectangular" width="100%" height={20} animation="wave" />
