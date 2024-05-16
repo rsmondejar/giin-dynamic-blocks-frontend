@@ -96,6 +96,7 @@ export default function CardItemInputSelect(
     return (
         <>
             <InputTextField
+                hasError={propsIn?.question?.hasError || false}
                 label={title.length > 0 ? title : defaultTitle}
                 value={title}
                 placeholder={placeholder.length > 0 ? placeholder : defaultPlaceholder}

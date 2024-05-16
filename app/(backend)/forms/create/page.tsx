@@ -180,6 +180,31 @@ export default function FormsCreatePage() {
             formHasError = true;
         }
 
+        questions.map((question) => {
+            question.hasError = false;
+            if (question.title.length === 0) {
+                enqueueSnackbar("La pregunta no puede estar vacía.", { variant: 'error' });
+                question.hasError = true;
+                formHasError = true;
+            }
+            if (question.type === QuestionType.InputSelect || question.type === QuestionType.InputRadio || question.type === QuestionType.InputCheckbox) {
+                if (question.options === null || question.options?.length === 0) {
+                    enqueueSnackbar("La pregunta '" + question.title + "' debe tener al menos una opción.", { variant: 'error' });
+                    question.hasError = true;
+                    formHasError = true;
+                }
+                question.options?.map((option) => {
+                    option.hasError = false;
+                    if (option.value.length === 0 && question.options?.length === 1) {
+                        enqueueSnackbar("La opción de la pregunta '" + question.title + "' no puede estar vacía.", { variant: 'error' });
+                        question.hasError = true;
+                        option.hasError = true;
+                        formHasError = true;
+                    }
+                });
+            }
+        });
+
         return formHasError;
     }
 
@@ -198,7 +223,7 @@ export default function FormsCreatePage() {
     return (
         <>
             <LoadingBackdrop open={loading} />
-            <Container maxWidth="lg">
+            <Container maxWidth="lg" sx={{mb: 15}}>
                 <Container maxWidth="md">
                     <Grid alignItems='center' justifyContent='center'>
                         <Grid item>
