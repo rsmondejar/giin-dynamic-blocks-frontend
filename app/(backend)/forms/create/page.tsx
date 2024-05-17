@@ -16,7 +16,7 @@ import QuestionType from "@/components/forms/enums/question-type-enum";
 import {useSession} from "next-auth/react";
 import LoadingBackdrop from "@/components/LoadingBackdrop";
 import FormCreate from "@/components/forms/interfaces/form-create.interface";
-import { useRouter } from 'next/navigation'
+import {useRouter} from 'next/navigation'
 
 export default function FormsCreatePage() {
     useSession({
@@ -24,11 +24,8 @@ export default function FormsCreatePage() {
     });
 
     const router = useRouter()
-
-    const { enqueueSnackbar } = useSnackbar();
-
+    const {enqueueSnackbar} = useSnackbar();
     const [loading, setLoading] = useState(false);
-
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [id, setId] = useState('');
@@ -38,11 +35,12 @@ export default function FormsCreatePage() {
     const addQuestion = (): Question => ({
         id: uuid.v4().toString(),
         title: 'Pregunta 1',
-        placeholder: 'Pregunta 1...',
+        placeholder: '',
         isRequired: false,
         type: QuestionType.InputText,
         order: 0,
         options: null,
+        hasError: false,
     });
 
     const [questions, setQuestions] = useState([
@@ -64,9 +62,9 @@ export default function FormsCreatePage() {
         questions.map((question, index) => {
             question.order = index + 1;
         })
-    },[questions])
+    }, [questions])
 
-    const generateSlug = () =>  {
+    const generateSlug = () => {
         return `${slugify(title)}-${id}`;
     };
 
@@ -106,7 +104,7 @@ export default function FormsCreatePage() {
             ...questions,
             {
                 ...addQuestion(),
-                title: 'Nueva pregunta',
+                title: 'Pregunta ' + (questions.length + 1),
                 placeholder: '',
             },
         ]);
@@ -130,7 +128,7 @@ export default function FormsCreatePage() {
         setOpenSaveDialog(false);
 
         if (await formValidation()) {
-            enqueueSnackbar("Revisar los errores del fomulario.", { variant: 'warning' });
+            enqueueSnackbar("Revisar los errores del fomulario.", {variant: 'warning'});
             return;
         }
 
@@ -155,12 +153,12 @@ export default function FormsCreatePage() {
                 );
             }
 
-            enqueueSnackbar('Formulario guardado correctamente.', { variant: 'success' });
+            enqueueSnackbar('Formulario guardado correctamente.', {variant: 'success'});
 
             // redirect to forms list
             router.push('/dashboard');
         } catch (error: any) {
-            enqueueSnackbar(error?.message ?? '', { variant: 'error' });
+            enqueueSnackbar(error?.message ?? '', {variant: 'error'});
         } finally {
             // disable loading screen
             setLoading(false);
@@ -170,15 +168,40 @@ export default function FormsCreatePage() {
     const formValidation = async () => {
         let formHasError: boolean = false;
         if (title.length === 0) {
-            enqueueSnackbar("El campo 'titulo del formulario' no puede estar vacío.", { variant: 'error' });
+            enqueueSnackbar("El campo 'titulo del formulario' no puede estar vacío.", {variant: 'error'});
             setHasErrorTitle(true);
             formHasError = true;
         }
 
         if (questions.length === 0) {
-            enqueueSnackbar("Debe agregar al menos una pregunta.", { variant: 'error' });
+            enqueueSnackbar("Debe agregar al menos una pregunta.", {variant: 'error'});
             formHasError = true;
         }
+
+        questions.map((question) => {
+            question.hasError = false;
+            if (question.title.length === 0) {
+                enqueueSnackbar("La pregunta no puede estar vacía.", {variant: 'error'});
+                question.hasError = true;
+                formHasError = true;
+            }
+            if (question.type === QuestionType.InputSelect || question.type === QuestionType.InputRadio || question.type === QuestionType.InputCheckbox) {
+                if (question.options === null || question.options?.length === 0) {
+                    enqueueSnackbar("La pregunta '" + question.title + "' debe tener al menos una opción.", {variant: 'error'});
+                    question.hasError = true;
+                    formHasError = true;
+                }
+                question.options?.map((option) => {
+                    option.hasError = false;
+                    if (option.value.length === 0 && question.options?.length === 1) {
+                        enqueueSnackbar("La opción de la pregunta '" + question.title + "' no puede estar vacía.", {variant: 'error'});
+                        question.hasError = true;
+                        option.hasError = true;
+                        formHasError = true;
+                    }
+                });
+            }
+        });
 
         return formHasError;
     }
@@ -197,8 +220,8 @@ export default function FormsCreatePage() {
 
     return (
         <>
-            <LoadingBackdrop open={loading} />
-            <Container maxWidth="lg">
+            <LoadingBackdrop open={loading}/>
+            <Container maxWidth="lg" sx={{mb: 15}}>
                 <Container maxWidth="md">
                     <Grid alignItems='center' justifyContent='center'>
                         <Grid item>

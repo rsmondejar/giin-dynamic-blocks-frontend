@@ -56,7 +56,6 @@ export default function InputRadioField(
             <RadioGroup
                 row={props.row}
                 aria-labelledby={props.id}
-                defaultValue="female"
                 name="radio-buttons-group"
             >
                 {props.options.map((item: QuestionOption) => (
