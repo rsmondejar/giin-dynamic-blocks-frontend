@@ -4,21 +4,26 @@ import InputSelectField from "@/components/forms/InputSelectField";
 import InputRadioField from "@/components/forms/InputRadioField";
 import InputCheckboxField from "@/components/forms/InputCheckboxField";
 import InputTextField from "@/components/forms/InputTextField";
-import React from "react";
+import React, {useEffect} from "react";
 import {SelectChangeEvent} from "@mui/material";
 
 export default function CardItemInputUserView(propsIn: Readonly<{ question: QuestionUserView }>): React.JSX.Element {
-    const [question]: [QuestionUserView, (value: (((prevState: QuestionUserView) => QuestionUserView) | QuestionUserView)) => void] = React.useState(propsIn.question);
-    const [value, setValue] = React.useState(propsIn?.question?.value || '');
+    const [question, setQuestion]: [QuestionUserView, (value: (((prevState: QuestionUserView) => QuestionUserView) | QuestionUserView)) => void] = React.useState(propsIn.question);
+
+    useEffect(() => {
+        setQuestion(propsIn.question);
+    }, [propsIn]);
 
     const handleSelectFieldChange = (e: SelectChangeEvent<unknown>) => {
-        setValue(e.target.value as string ?? '');
         propsIn.question.value = e.target.value as string ?? '';
     }
 
     const handleInputTextFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setValue(e.target.value);
         propsIn.question.value = e.target.value;
+    }
+
+    const handleCheckboxFieldChange = (e: React.ChangeEvent<HTMLInputElement>, values: string[]) => {
+        propsIn.question.values = values;
     }
 
     const getInputType = (questionType: QuestionType) : string => {
@@ -40,9 +45,9 @@ export default function CardItemInputUserView(propsIn: Readonly<{ question: Ques
                     id={question.id}
                     label={question.title}
                     placeholder={question.placeholder ?? ''}
-                    hasError={question.hasError}
+                    hasError={question?.hasError || false}
                     required={question.isRequired}
-                    value={value as string ?? ''}
+                    value={question.value as string ?? ''}
                     options={question.options ?? []}
                     helperText={question.placeholder ?? ''}
                     onChange={handleSelectFieldChange}
@@ -52,7 +57,7 @@ export default function CardItemInputUserView(propsIn: Readonly<{ question: Ques
                     id={question.id}
                     label={question.title}
                     placeholder={question.placeholder ?? ''}
-                    hasError={question.hasError}
+                    hasError={question?.hasError || false}
                     required={question.isRequired}
                     value={question.value ?? null}
                     options={question.options ?? []}
@@ -62,21 +67,21 @@ export default function CardItemInputUserView(propsIn: Readonly<{ question: Ques
             case QuestionType.InputCheckbox:
                 return <InputCheckboxField
                     id={question.id}
-                    label={question.title}
+                    label={`${question.title}`}
                     placeholder={question.placeholder ?? ''}
-                    hasError={question.hasError}
+                    hasError={question?.hasError || false}
                     required={question.isRequired}
-                    value={question.value as boolean ?? false}
+                    value={question.value ?? ''}
                     options={question.options ?? []}
                     helperText={question.placeholder ?? ''}
-                    onChange={handleInputTextFieldChange}
+                    onChangeValues={handleCheckboxFieldChange}
                 />
             default:
                 return <InputTextField
                     id={question.id}
                     label={question.title}
                     placeholder={question.placeholder ?? ''}
-                    hasError={question.hasError}
+                    hasError={question?.hasError || false}
                     required={question.isRequired}
                     value={question.value ?? ''}
                     helperText={question.placeholder ?? ''}

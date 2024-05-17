@@ -1,16 +1,15 @@
 import Container from "@mui/material/Container";
 import {Grid} from "@mui/material";
+import React from "react";
 
-export default function HomePage() {
+export default function ThanksPage() {
     return (
         <Container maxWidth="lg">
             <Container maxWidth="md">
                 <Grid alignItems='center' justifyContent='center'>
                     <Grid item>
-                        <h1>VIU GIIN Dynamic Blocks</h1>
-                        <h2>Página de bienvenida</h2>
-                        <p>El contenido de esta lading está en construcción.</p>
-                        <p>Por favor, regrese más tarde.</p>
+                        <h1>¡Gracias por su respuesta!</h1>
+                        <p>La petición enviada ha sido registrada.</p>
                     </Grid>
                 </Grid>
             </Container>

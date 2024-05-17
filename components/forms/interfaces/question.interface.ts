@@ -8,6 +8,6 @@ export default interface Question {
     isRequired: boolean;
     type: QuestionType;
     order: number;
-    hasError?: boolean;
+    hasError: boolean;
     options?: QuestionOption[] | null;
 }

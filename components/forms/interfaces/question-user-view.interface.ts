@@ -8,8 +8,8 @@ export default interface QuestionUserView {
     isRequired: boolean;
     type: QuestionType;
     order: number;
-    value?: string|boolean|null;
-    values?: string[]|boolean[]|null;
-    hasError?: boolean;
+    value?: string|null;
+    values?: string[]|null;
+    hasError: boolean;
     options?: QuestionOption[] | null;
 }

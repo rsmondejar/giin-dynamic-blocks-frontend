@@ -1,7 +1,7 @@
 "use client";
 
 import {Checkbox, FormControl, FormControlLabel, FormGroup, FormHelperText, FormLabel} from "@mui/material";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import PropsCommon from "@/components/forms/interfaces/props-common.interface";
 import defaultCommonProps from "@/components/forms/entities/default-common-props.entity";
 import {InputProps as StandardInputProps} from "@mui/material/Input/Input";
@@ -9,44 +9,56 @@ import QuestionOption from "@/components/forms/interfaces/question-option.interf
 import uuid from "react-native-uuid";
 
 interface Props extends Partial<PropsCommon> {
-    id: string;
-    value?: boolean;
-    options: QuestionOption[];
-    onChange?: StandardInputProps['onChange'];
+    id: string,
+    values?: string[],
+    options: QuestionOption[],
+    onChange?: StandardInputProps['onChange'],
+    onChangeValues?: (e: React.ChangeEvent<HTMLInputElement>, values: string[]) => void
 }
 
 const defaultProps: Props = {
     ...defaultCommonProps,
     id: uuid.v4().toString(),
-    value: false,
+    values: [],
     options: [],
 }
 
 export default function InputCheckboxField(
-    propsIn : Readonly<Props>
+    propsIn: Readonly<Props>
 ) {
     const props = {...defaultProps, ...propsIn};
 
     const [inputState, setInputState] = useState({
-        // value: props.value,
-        value: false,
+        values: [] as string[],
         error: false,
     });
 
     const handleFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        let values: string[];
+        if (e.target.checked) {
+            values = [...inputState.values, (e.target.value as string)];
+        } else {
+            values = inputState.values.filter((value) => value !== e.target.value) as string[];
+        }
+
         setInputState({
             ...inputState,
-            value: e.target.value === 'on'
+            values: values,
         });
+
 
         if (typeof propsIn.onChange === 'function') {
             propsIn.onChange(e);
+        }
+
+        if (typeof propsIn.onChangeValues === 'function') {
+            propsIn.onChangeValues(e, values);
         }
     }
 
     return (
         <FormControl
-            sx={{ m: 1 }}
+            sx={{m: 1}}
             component="fieldset"
             variant="standard"
             fullWidth
@@ -71,10 +83,7 @@ export default function InputCheckboxField(
                         label={item.value}
                         disabled={item.disabled}
                     />
-
                 ))}
-
-
             </FormGroup>
             <FormHelperText>{props.helperText}</FormHelperText>
         </FormControl>
