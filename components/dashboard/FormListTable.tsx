@@ -235,6 +235,7 @@ function EnhancedTableToolbar() {
 export default function FormListTable() {
     const { enqueueSnackbar } = useSnackbar();
     const [loading, setLoading] = useState(false);
+    const [loadingGetData, setLoadingGetData] = useState(true);
 
     const [rows, setRows] = React.useState([] as Data[]);
     const [order, setOrder] = React.useState<Order>('asc');
@@ -247,8 +248,10 @@ export default function FormListTable() {
 
     // Load data from API
     React.useEffect(() => {
+        setLoadingGetData(true);
         getForms().then((data) => {
             setRows(data);
+            setLoadingGetData(false);
         });
     }, []);
 
@@ -432,7 +435,7 @@ export default function FormListTable() {
                                             </StyledTableCell>
                                         </TableRow>
                                     );
-                                }) || (
+                                }) || loadingGetData && (
                                     [...Array(defaultSkeletonRows)].map(() => (
                                         <StyledTableRow key={uuid.v4().toString()}>
                                             <StyledTableCell component="th" scope="row">
@@ -459,13 +462,15 @@ export default function FormListTable() {
                                         </StyledTableRow>
                                     ))
                                 )}
-                                {emptyRows > 0 && (
+                                {!loadingGetData && rows.length === 0  && (
                                     <StyledTableRow
                                         style={{
                                             height: (dense ? 33 : 53) * emptyRows,
                                         }}
                                     >
-                                        <StyledTableCell colSpan={6}/>
+                                        <StyledTableCell colSpan={7}>
+                                            Todavía no tienes formularios dados de alta
+                                        </StyledTableCell>
                                     </StyledTableRow>
                                 )}
                             </TableBody>

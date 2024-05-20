@@ -1,14 +1,14 @@
 "use client";
 
-import {signOut, useSession} from "next-auth/react";
+import {useSession} from "next-auth/react";
 import {Button, Grid} from "@mui/material";
 import Header from "@/components/Header";
 import Container from "@mui/material/Container";
 import FormListTable from "@/components/dashboard/FormListTable";
-import Item from "@/components/Item";
+import Link from "next/link";
 
 export default function Dashboard() {
-    const { data: session} = useSession({
+    const {data: session} = useSession({
         required: true,
     });
 
@@ -18,28 +18,24 @@ export default function Dashboard() {
 
     return (
         <Container maxWidth={false}>
-            {/*<Container maxWidth="md">*/}
-            {/*    <Grid container alignItems='center' justifyContent='center'>*/}
-            {/*        <Grid item>*/}
-            {/*            <Header title='Dashboard' />*/}
-            {/*            <p>Bievenido <strong>{ session.user?.name }</strong></p>*/}
-            {/*            <ul>*/}
-            {/*                <li>Nombre: { session.user?.name }</li>*/}
-            {/*                <li>Apellidos: {session.user?.lastName}</li>*/}
-            {/*                <li>ID: {session.user?.id}</li>*/}
-            {/*                <li>Email: {session.user?.email}</li>*/}
-            {/*                <li>Fecha alta: {session.user?.createdAt.toString()}</li>*/}
-            {/*            </ul>*/}
-            {/*        </Grid>*/}
-            {/*    </Grid>*/}
-            {/*</Container>*/}
-            <Container maxWidth={false}>
+            <Container maxWidth={false} sx={{mb: 5}}>
                 <Grid container alignItems='center' justifyContent='center'>
                     <Grid item>
-                        <Header title='Dashboard' />
-                        {/*<Item>*/}
-                            <FormListTable />
-                        {/*</Item>*/}
+                        <Header title='Dashboard'/>
+                        <FormListTable/>
+                    </Grid>
+                </Grid>
+            </Container>
+            <Container maxWidth="md">
+                <Grid container alignItems='center' justifyContent='start'>
+                    <Grid item>
+                        <Button
+                            component={Link}
+                            href={'/forms/create'}
+                            variant="contained"
+                        >
+                            Nuevo Formulario
+                        </Button>
                     </Grid>
                 </Grid>
             </Container>

@@ -15,17 +15,12 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import WidgetsIcon from '@mui/icons-material/Widgets';
 import Link from "next/link";
-import {useSession} from "next-auth/react";
+import {signOut, useSession} from "next-auth/react";
 import NightModeToggle from "@/components/NightModeToggle";
 
 const pages: {title: string, url: string}[] = [
     {title: 'Dashboard', url: '/dashboard'},
     {title: 'Nuevo Formulario', url: '/forms/create'}
-];
-
-const settings: {title: string, url: string}[] = [
-    {title: 'Cuenta', url: '#cuenta'},
-    {title: 'Cerrar sesión', url: '#sign-out'}
 ];
 
 export default function NavBar() {
@@ -186,16 +181,13 @@ export default function NavBar() {
                                 open={Boolean(anchorElUser)}
                                 onClose={handleCloseUserMenu}
                             >
-                                {settings.map((setting: {title: string, url: string}) => (
-                                    <MenuItem
-                                        key={`menu_c_${setting.url}`}
-                                        href={setting.url}
-                                        component={Link}
-                                        onClick={handleCloseUserMenu}
-                                    >
-                                        <Typography textAlign="center">{setting.title}</Typography>
-                                    </MenuItem>
-                                ))}
+                                <MenuItem
+                                    href='#logout'
+                                    component={Link}
+                                    onClick={() => signOut()}
+                                >
+                                    <Typography textAlign="center">Cerrar sesión</Typography>
+                                </MenuItem>
                             </Menu>
                         </Box>
                     )}
