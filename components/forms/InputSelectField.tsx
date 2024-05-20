@@ -14,18 +14,22 @@ import PropsCommon from "@/components/forms/interfaces/props-common.interface";
 import defaultCommonProps from "@/components/forms/entities/default-common-props.entity";
 import QuestionOption from "@/components/forms/interfaces/question-option.interface";
 import {SelectProps as StandardSelectProps} from "@mui/material/Select/Select";
+import QuestionAnswerOption from "@/components/forms/interfaces/question-answer-option.interface";
 
 interface Props extends Partial<PropsCommon> {
     id: string;
-    value?: string;
     options: QuestionOption[];
+    value?: string;
+    values?: QuestionAnswerOption[];
     onChange?: StandardSelectProps['onChange'];
+    onChangeValues?: (e: SelectChangeEvent, values: QuestionAnswerOption[]) => void
 }
 
 const defaultProps: Props = {
     ...defaultCommonProps,
     id: uuid.v4().toString(),
     value: '',
+    values: [],
     options: [],
 }
 
@@ -36,17 +40,29 @@ export default function InputSelectField(
 
     const [inputState, setInputState] = useState({
         value: props.value,
+        values: [] as QuestionAnswerOption[],
         error: false,
     });
 
     const handleFieldChange = (e: SelectChangeEvent) => {
+        const option = props.options.find((item: QuestionOption) => item.key === e.target.value);
+        let values: QuestionAnswerOption[] = [{
+            key: option?.key ?? '',
+            value: option?.value ?? '',
+        }];
+
         setInputState({
             ...inputState,
-            value: e.target.value
+            value: e.target.value,
+            values: values,
         });
 
         if (typeof propsIn.onChange === 'function') {
             propsIn.onChange(e, e.target.value);
+        }
+
+        if (typeof propsIn.onChangeValues === 'function') {
+            propsIn.onChangeValues(e, values);
         }
     }
 

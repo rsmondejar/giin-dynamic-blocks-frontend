@@ -16,12 +16,22 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import DeleteIcon from '@mui/icons-material/Delete';
+import FeedIcon from '@mui/icons-material/Feed';
 import {visuallyHidden} from '@mui/utils';
 import moment from "moment/moment";
 import Link from "next/link";
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import Button from "@mui/material/Button";
-import {Chip, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Skeleton} from "@mui/material";
+import {
+    ButtonGroup,
+    Chip,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Skeleton
+} from "@mui/material";
 import LoadingBackdrop from "@/components/LoadingBackdrop";
 import {useSnackbar} from "notistack";
 import uuid from "react-native-uuid";
@@ -320,13 +330,8 @@ export default function FormListTable() {
             // enable loading screen
             setLoading(true);
 
-            console.log("deleteFormItem", deleteFormItem);
-
             // send form to backend
             const response = await sendDeleteItem(deleteFormItem);
-
-            console.log("response", response);
-
 
             if (response.errors) {
                 throw new Error(
@@ -360,6 +365,44 @@ export default function FormListTable() {
         });
 
         return await formCreateResponse.json()
+    }
+
+    const handleExportFormSubmissions = async (form: Data) => {
+        try {
+            setLoading(true);
+
+            const blob = await exportFormSubmissionsExcel(form);
+
+            const date: string = moment().format('DD-MM-YYYY_HH:mm:ss');
+
+            downloadFile(blob, `formulario_${form.slug}_inscripciones_${date}.xlsx`);
+
+            enqueueSnackbar('Inscripciones formulario exportadas correctamente.', { variant: 'success' });
+        } catch (error: any) {
+            enqueueSnackbar(error?.message ?? '', { variant: 'error' });
+        } finally {
+            // disable loading screen
+            setLoading(false);
+        }
+    }
+
+    const downloadFile = (blob: Blob, fileName: string) => {
+        // Now you can use the blob to create a download link, for example
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName; // or any other filename you want
+        document.body.appendChild(a); // we need to append the element to the dom -> invisible
+        a.click();
+        a.remove();  // afterwards we remove the element again
+    }
+
+    const exportFormSubmissionsExcel = async (form: Data) => {
+        const formCreateResponse = await fetch(`/api/forms/${form.id}/submissions/export/excel`, {
+            method: 'GET',
+        });
+
+        return await formCreateResponse.blob()
     }
 
     return (
@@ -422,6 +465,7 @@ export default function FormListTable() {
                                                 <Chip
                                                     label={row?._count?.formSubmission ?? 0}
                                                     variant="outlined"
+                                                    title={`Total inscripciones del formulario ${row.title}`}
                                                 />
                                             </StyledTableCell>
                                             <StyledTableCell
@@ -429,9 +473,24 @@ export default function FormListTable() {
                                                 id={labelId}
                                                 scope="row"
                                             >
-                                                <Button onClick={() => handleOpenDeleteDialog(row)}>
-                                                    <DeleteIcon color="error" />
-                                                </Button>
+                                                <ButtonGroup>
+                                                    <Button
+                                                        onClick={() => handleExportFormSubmissions(row)}
+                                                        variant="contained"
+                                                        color="info"
+                                                        title={`Exportar inscripciones formulario ${row.title}`}
+                                                    >
+                                                        <FeedIcon />
+                                                    </Button>
+                                                    <Button
+                                                        onClick={() => handleOpenDeleteDialog(row)}
+                                                        variant="contained"
+                                                        color="error"
+                                                        title={`Eliminar formulario ${row.title}`}
+                                                    >
+                                                        <DeleteIcon />
+                                                    </Button>
+                                                </ButtonGroup>
                                             </StyledTableCell>
                                         </TableRow>
                                     );
@@ -481,6 +540,7 @@ export default function FormListTable() {
                         component="div"
                         count={rows.length}
                         rowsPerPage={rowsPerPage}
+                        labelRowsPerPage='Filas por página'
                         page={page}
                         onPageChange={handleChangePage}
                         onRowsPerPageChange={handleChangeRowsPerPage}

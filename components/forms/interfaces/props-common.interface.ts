@@ -1,3 +1,5 @@
+import QuestionAnswerOption from "@/components/forms/interfaces/question-answer-option.interface";
+
 export default interface PropsCommon {
     label: string;
     required: boolean;
@@ -6,7 +8,7 @@ export default interface PropsCommon {
     hasError: boolean;
     id?: string|null;
     type?: string|null;
-    value?: string|boolean|null;
+    value?: string|QuestionAnswerOption|null;
     placeholder?: string;
     helperText?: string|null;
     size?: 'small'|'medium';

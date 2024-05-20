@@ -25,7 +25,6 @@ import uuid from "react-native-uuid";
 import {useSnackbar} from "notistack";
 import Question from "@/components/forms/interfaces/question.interface";
 import LoadingBackdrop from "@/components/LoadingBackdrop";
-import FormCreate from "@/components/forms/interfaces/form-create.interface";
 import FormSubmit from "@/components/forms/interfaces/form-submit.interface";
 import {useRouter} from "next/navigation";
 import QuestionAnswer from "@/components/forms/interfaces/question-answer.interface";
@@ -94,13 +93,13 @@ export default function FormUserView(
             answers: form.questions.map((question: QuestionUserView) => {
                 let answer: QuestionAnswer = {
                     questionId: question.id,
+                    type: question.type,
+                    title: question.title,
                 };
 
                 switch (question.type) {
-                    case QuestionType.InputSelect:
                     case QuestionType.InputRadio:
-                        answer.value = question.value ?? null;
-                        break;
+                    case QuestionType.InputSelect:
                     case QuestionType.InputCheckbox:
                         answer.values = question.values ?? null;
                         break;
@@ -113,16 +112,13 @@ export default function FormUserView(
             }),
         }
 
-        console.log('formToSend', formToSend);
-
-        // TSend Form
+        // Send Form
         try {
             // enable loading screen
             setLoading(true);
 
             // send form to backend
             const response = await sendForm(formToSend);
-
 
             if (response.errors) {
                 throw new Error(
@@ -132,7 +128,6 @@ export default function FormUserView(
 
             enqueueSnackbar('Formulario enviado correctamente.', {variant: 'success'});
 
-            // Redirect to thanks page
             router.push('/gracias');
         } catch (error: any) {
             enqueueSnackbar(error?.message ?? '', {variant: 'error'});
@@ -148,14 +143,17 @@ export default function FormUserView(
         form.questions.map((question: QuestionUserView) => {
             question.hasError = false;
             if (question.isRequired) {
-                if (question.type === QuestionType.InputCheckbox) {
+                if (question.type === QuestionType.InputCheckbox
+                    || question.type === QuestionType.InputSelect
+                    || question.type === QuestionType.InputRadio
+                ) {
                     if (question.values === null || typeof question.values === 'undefined' || question.values?.length === 0) {
                         enqueueSnackbar("La pregunta '" + question.title + "' es obligatoria.", {variant: 'error'});
                         question.hasError = true;
                         formHasError = true;
                     }
                 } else {
-                    if (question.value === null || question.value?.length === 0 || typeof question.value === 'undefined') {
+                    if (question.value === null || (typeof question.value === 'string' && question.value?.length === 0) || typeof question.value === 'undefined') {
                         enqueueSnackbar("La pregunta '" + question.title + "' es obligatoria.", {variant: 'error'});
                         question.hasError = true;
                         formHasError = true;
