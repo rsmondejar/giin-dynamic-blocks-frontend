@@ -34,6 +34,12 @@ export default function LoginForm() {
         return errorMap[error] || 'Error desconocido';
     }
 
+    const handleKeyDown = async (event: { key: string; }) => {
+        if (event.key === 'Enter') {
+            await handleSubmit();
+        }
+    }
+
     const handleSubmit = async () => {
         setFormState((old: { processing: boolean; error: string }): { error: any, processing: boolean } => ({
             ...old,
@@ -79,6 +85,7 @@ export default function LoginForm() {
                 <TextField
                     sx={{mb: 1}}
                     onChange={handleFieldChange}
+                    onKeyDown={handleKeyDown}
                     value={authState.email}
                     fullWidth
                     label='E-mail'
@@ -88,6 +95,7 @@ export default function LoginForm() {
                 <TextField
                     sx={{mb: 1}}
                     onChange={handleFieldChange}
+                    onKeyDown={handleKeyDown}
                     value={authState.password}
                     fullWidth
                     label='Contraseña'

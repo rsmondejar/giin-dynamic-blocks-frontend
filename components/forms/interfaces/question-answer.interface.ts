@@ -1,5 +1,9 @@
+import QuestionAnswerOption from "@/components/forms/interfaces/question-answer-option.interface";
+
 export default interface QuestionAnswer {
     questionId: string;
-    value?: string|null;
-    values?: string[]|null;
+    type: string;
+    title: string;
+    value?: string|QuestionAnswerOption|null;
+    values?: QuestionAnswerOption[]|null;
 }
