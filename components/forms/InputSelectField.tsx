@@ -73,6 +73,7 @@ export default function InputSelectField(
             fullWidth
             required={props.required}
             disabled={props.disabled}
+            size={props.size}
         >
             <InputLabel id={props.id}>{props.label}</InputLabel>
             <Select
