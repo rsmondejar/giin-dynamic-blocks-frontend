@@ -43,6 +43,7 @@ export default function FormUserView(
         title: '',
         slug: '',
         description: '',
+        isPublished: true,
         questions: [],
     } as FormBasicInfo);
 
@@ -60,19 +61,36 @@ export default function FormUserView(
     // Load data from API
     useEffect(() => {
         getFormBySlug(slug).then((data) => {
+            if (data?.errors) {
+                enqueueSnackbar(data.errors, {variant: 'error'});
+
+                setInterval(() => {
+                    router.push('/');
+                }, 300);
+                return;
+            }
             data.questions.map((question: QuestionUserView) => {
                 question.hasError = false;
                 return question;
             });
             setForm(data);
         });
-    }, [slug]);
+    }, [enqueueSnackbar, router, slug]);
+
+    useEffect(() => {
+        if (!form.isPublished) {
+            enqueueSnackbar('Form not published', {variant: 'error'});
+
+            setInterval(() => {
+                router.push('/');
+            }, 300);
+        }
+    }, [enqueueSnackbar, form, router]);
 
     const [openSubmitDialog, setOpenSubmitDialog] = React.useState(false);
 
     const handleOpenSubmitDialog = () => {
-        // setOpenSubmitDialog(true); // TODO: comentado temporalemnte para las pruebas
-        handleConfirmSubmitDialog(); // TODO: Borrar despues de terminar las pruebas
+        setOpenSubmitDialog(true);
     };
 
     const handleCloseSubmitDialog = () => {
@@ -147,17 +165,23 @@ export default function FormUserView(
                     || question.type === QuestionType.InputSelect
                     || question.type === QuestionType.InputRadio
                 ) {
-                    if (question.values === null || typeof question.values === 'undefined' || question.values?.length === 0) {
+                    if (
+                        question.values === null
+                        || typeof question.values === 'undefined'
+                        || question.values?.length === 0
+                    ) {
                         enqueueSnackbar("La pregunta '" + question.title + "' es obligatoria.", {variant: 'error'});
                         question.hasError = true;
                         formHasError = true;
                     }
-                } else {
-                    if (question.value === null || (typeof question.value === 'string' && question.value?.length === 0) || typeof question.value === 'undefined') {
-                        enqueueSnackbar("La pregunta '" + question.title + "' es obligatoria.", {variant: 'error'});
-                        question.hasError = true;
-                        formHasError = true;
-                    }
+                } else  if (
+                    question.value === null
+                    || (typeof question.value === 'string' && question.value?.length === 0)
+                    || typeof question.value === 'undefined'
+                ) {
+                    enqueueSnackbar("La pregunta '" + question.title + "' es obligatoria.", {variant: 'error'});
+                    question.hasError = true;
+                    formHasError = true;
                 }
             }
         });

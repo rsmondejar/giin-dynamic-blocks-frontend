@@ -8,7 +8,7 @@ import {
     Select,
     SelectChangeEvent
 } from "@mui/material";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import uuid from "react-native-uuid";
 import PropsCommon from "@/components/forms/interfaces/props-common.interface";
 import defaultCommonProps from "@/components/forms/entities/default-common-props.entity";
@@ -44,6 +44,14 @@ export default function InputSelectField(
         error: false,
     });
 
+    useEffect(() => {
+        setInputState({
+            ...inputState,
+            value: props.value,
+            values: props.values as QuestionAnswerOption[],
+        });
+    }, [props.value, props.values]);
+
     const handleFieldChange = (e: SelectChangeEvent) => {
         const option = props.options.find((item: QuestionOption) => item.key === e.target.value);
         let values: QuestionAnswerOption[] = [{
@@ -73,6 +81,7 @@ export default function InputSelectField(
             fullWidth
             required={props.required}
             disabled={props.disabled}
+            size={props.size}
         >
             <InputLabel id={props.id}>{props.label}</InputLabel>
             <Select

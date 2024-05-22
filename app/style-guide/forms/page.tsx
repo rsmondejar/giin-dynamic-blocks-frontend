@@ -102,18 +102,18 @@ export default function StyleGuideFormsPage() {
                                         options={options}
                                         disabled={false}
                                         required={false}
-                                        // value="key-3"
                                     />
                                 </Item>
                                 <Item>
                                     <InputCheckboxField
+                                        id="id_checkbox_01"
                                         label="Input type Checbox simple"
                                         placeholder="Esto es el placeholder"
                                         helperText="This is the helper text"
                                         hasError={false}
                                         disabled={false}
                                         required={false}
-                                        // value={false}
+                                        options={options}
                                     />
                                 </Item>
                             </Stack>
