@@ -31,7 +31,7 @@ import {
     DialogActions,
     DialogContent,
     DialogContentText,
-    DialogTitle, Grid, List, ListItem, ListItemButton, ListItemIcon, ListItemText, SelectChangeEvent,
+    DialogTitle, Grid, List, SelectChangeEvent,
     Skeleton
 } from "@mui/material";
 import LoadingBackdrop from "@/components/LoadingBackdrop";
@@ -136,6 +136,13 @@ function stableSort<T>(array: readonly T[], comparator: (a: T, b: T) => number) 
 
 const headCells: readonly HeadCell[] = [
     {
+        id: 'createdAt',
+        numeric: false,
+        disablePadding: false,
+        label: 'Fecha creación',
+        align: 'center',
+    },
+    {
         id: 'title',
         numeric: false,
         disablePadding: true,
@@ -164,13 +171,6 @@ const headCells: readonly HeadCell[] = [
         align: 'center',
     },
     {
-        id: 'createdAt',
-        numeric: false,
-        disablePadding: false,
-        label: 'Fecha creación',
-        align: 'center',
-    },
-    {
         id: '_count',
         numeric: false,
         disablePadding: false,
@@ -195,7 +195,7 @@ const EnhancedTableHead = (props: EnhancedTableProps) => {
     return (
         <TableHead>
             <TableRow>
-                {headCells.map((headCell) => (
+                {headCells.map((headCell: HeadCell) => (
                     <TableCell
                         key={headCell.id}
                         align={headCell.align}
@@ -254,8 +254,8 @@ export default function FormListTable() {
     const [loadingGetData, setLoadingGetData] = useState(true);
 
     const [rows, setRows] = React.useState([] as Data[]);
-    const [order, setOrder] = React.useState<Order>('asc');
-    const [orderBy, setOrderBy] = React.useState<keyof Data>('title');
+    const [order, setOrder] = React.useState<Order>('desc');
+    const [orderBy, setOrderBy] = React.useState<keyof Data>('createdAt');
     const [selected] = React.useState<readonly string[]>([]);
     const [page, setPage] = React.useState(0);
     const [dense] = React.useState(false);
@@ -433,6 +433,7 @@ export default function FormListTable() {
 
     const [openShareDialog, setOpenShareDialog] = React.useState(false);
     const [formUserRoles, setFormUserRoles] = React.useState([] as FormRole[]);
+    const [formToShare, setFormToShare] = React.useState({} as Data);
     const [addPermissionEmailInputError, setAddPermissionEmailInputError] = React.useState(false);
     const [addPermissionRoleInputError, setAddPermissionRoleInputError] = React.useState(false);
     const [addPermissionEmailInput, setAddPermissionEmailInput] = React.useState('');
@@ -445,21 +446,43 @@ export default function FormListTable() {
     ]
 
     const handleOpenShareDialog = (form: Data) => {
-        console.log(form);
         setFormUserRoles(form.formsRoles);
+        setFormToShare(form);
         setOpenShareDialog(true);
     }
 
     const handleCloseShareDialog = () => {
         setOpenShareDialog(false);
         setFormUserRoles([]);
+        setFormToShare({} as Data);
     };
 
-    const handleDeletePermission = (userId: string) => {
-        console.log('Delete permission', userId);
+    const handleDeletePermission = async (userEmail: string) => {
+        try {
+            setLoading(true);
 
-        // TODO: Show another confirm dialog overlapping??
-        // TODO: make API Call
+            const response = await sendDeleteUserPermissions(userEmail);
+
+            if (response.errors) {
+                throw new Error(
+                    'Error al eliminar permisos al formulario: ' + (response.errors ?? '')
+                );
+            }
+
+            enqueueSnackbar('Permisos de usuario eliminados correctamente.', { variant: 'success' });
+
+            // Recargar los formularios
+            await getForms().then((data) => {
+                setRows(data);
+                setFormUserRoles(data.find((form: Data) => form.id === formToShare.id)?.formsRoles ?? []);
+                enqueueSnackbar('Listado de formulariosa actualizado.', { variant: 'success' });
+            });
+        } catch (error: any) {
+            enqueueSnackbar(error?.message ?? '', { variant: 'error' });
+        } finally {
+            // disable loading screen
+            setLoading(false);
+        }
     }
 
     const handleAddPermissionEmailInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -470,13 +493,39 @@ export default function FormListTable() {
         setAddPermissionRoleInput(e.target.value as string);
     }
 
-    const handleAddUserPermissions = () => {
+    const handleAddUserPermissions = async () => {
         if (validationAddUserPermissions()) {
             return;
         }
 
-        // TODO: make API Call
+        try {
+            setLoading(true);
 
+            const response = await sendAddUserPermissions();
+
+            if (response.errors) {
+                throw new Error(
+                    'Error al agregar permisos al formulario: ' + (response.errors ?? '')
+                );
+            }
+
+            enqueueSnackbar('Permisos de usuario agregados correctamente.', { variant: 'success' });
+
+            // Recargar los formularios
+            await getForms().then((data) => {
+                setRows(data);
+                setFormUserRoles(data.find((form: Data) => form.id === formToShare.id)?.formsRoles ?? []);
+                enqueueSnackbar('Listado de formulariosa actualizado.', { variant: 'success' });
+            });
+
+            setAddPermissionEmailInput('');
+            setAddPermissionRoleInput('');
+        } catch (error: any) {
+            enqueueSnackbar(error?.message ?? '', { variant: 'error' });
+        } finally {
+            // disable loading screen
+            setLoading(false);
+        }
     }
 
     const validationAddUserPermissions = () => {
@@ -495,6 +544,35 @@ export default function FormListTable() {
             hasErrors = true;
         }
         return hasErrors;
+    }
+
+    const sendAddUserPermissions = async () => {
+        const response = await fetch(`/api/forms/${formToShare.id}/permissions/add`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: addPermissionEmailInput,
+                roleId: addPermissionRoleInput,
+            }),
+        });
+
+        return await response.json();
+    }
+
+    const sendDeleteUserPermissions = async (email: string) => {
+        const response = await fetch(`/api/forms/${formToShare.id}/permissions/remove`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: email,
+            }),
+        });
+
+        return await response.json();
     }
 
     return (
@@ -534,7 +612,11 @@ export default function FormListTable() {
                                                 component="th"
                                                 id={labelId}
                                                 scope="row"
+                                                align="left"
                                             >
+                                                {parseDate(row.createdAt)}
+                                            </StyledTableCell>
+                                            <StyledTableCell>
                                                 {row.title}
                                             </StyledTableCell>
                                             <StyledTableCell align="left">
@@ -551,8 +633,6 @@ export default function FormListTable() {
                                             <StyledTableCell align="left">{row.author?.name ?? ''}</StyledTableCell>
                                             <StyledTableCell
                                                 align="center">{row.isPublished ? 'Sí' : 'No'}</StyledTableCell>
-                                            <StyledTableCell
-                                                align="left">{parseDate(row.createdAt)}</StyledTableCell>
                                             <StyledTableCell align="center">
                                                 <Chip
                                                     label={row?._count?.formSubmission ?? 0}
@@ -565,7 +645,7 @@ export default function FormListTable() {
                                                 id={labelId}
                                                 scope="row"
                                             >
-                                                <ButtonGroup>
+                                                <ButtonGroup size="small">
                                                     {row.formsRoles.some((formRole: FormRole) =>
                                                         formRole.user.id === userId && formRole.role.type === roleTypeOwner) && (
                                                         <Button
@@ -682,6 +762,8 @@ export default function FormListTable() {
                     onClose={handleCloseShareDialog}
                     aria-labelledby="alert-dialog-share-title"
                     aria-describedby="alert-dialog-share-description"
+                    maxWidth="sm"
+                    fullWidth
                 >
                     <DialogTitle id="alert-dialog-share-title">
                         {"Agregar usuarios al formulario"}
@@ -727,27 +809,43 @@ export default function FormListTable() {
                         <p>Listado de usuarios con permisos:</p>
                         <List>
                             {formUserRoles.map((formUserRole: FormRole, index: number) => (
-                                <ListItem
-                                    disablePadding
-                                    alignItems="flex-start"
-                                    key={`${formUserRole.user.id}_${formUserRole.role.id}`}
+                                <Grid
+                                    key={uuid.v4().toString()}
+                                    container
+                                    alignItems="center"
+                                    justifyContent="flex-start"
+                                    sx={{pb: 1}}
                                 >
-                                    <ListItemButton sx={{p: 0}}>
-                                        <ListItemText primary={`${index + 1}.- ${formUserRole.user.email}`} sx={{ px: 2}}/>
-                                        <ListItemText sx={{ px: 2}}>
-                                            <Chip label={formUserRole.role.name} variant="outlined" />
-                                        </ListItemText>
-                                        <ListItemIcon sx={{ justifyContent: 'flex-end'}}>
-                                            <DeleteIcon color="error" onClick={() => handleDeletePermission(formUserRole.user.id)} />
-                                        </ListItemIcon>
-                                    </ListItemButton>
-                                </ListItem>
+                                    <Grid item xs={8}>
+                                        {`${index + 1}.- ${formUserRole.user.email}`}
+                                    </Grid>
+                                    <Grid item xs={3} display="flex" justifyContent="center">
+                                        <Chip label={formUserRole.role.name} variant="outlined" />
+                                    </Grid>
+                                    <Grid item xs={1} display="flex" justifyContent="flex-end">
+                                        {session?.user?.id !== formUserRole.user.id
+                                            && formUserRole.role.name !== roleTypeOwner
+                                            && (
+                                                <ButtonGroup>
+                                                    <Button
+                                                        onClick={() => handleDeletePermission(formUserRole.user.email)}
+                                                        color="error"
+                                                        variant="text"
+                                                        size="small"
+
+                                                    >
+                                                        <DeleteIcon color="error"  />
+                                                    </Button>
+                                                </ButtonGroup>
+                                            )}
+                                    </Grid>
+                                </Grid>
                             ))}
                         </List>
                     </DialogContent>
                     <DialogActions>
                         <Button onClick={handleCloseShareDialog} variant="contained" color="secondary">
-                            Cancelar
+                            Cerrar
                         </Button>
                     </DialogActions>
                 </Dialog>

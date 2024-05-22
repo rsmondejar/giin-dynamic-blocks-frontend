@@ -1,7 +1,7 @@
 "use client";
 
 import {TextField} from "@mui/material";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import PropsCommon from "@/components/forms/interfaces/props-common.interface";
 import defaultCommonProps from "@/components/forms/entities/default-common-props.entity";
 import {InputProps as StandardInputProps} from "@mui/material/Input/Input";
@@ -27,6 +27,13 @@ export default function InputTextField(
         value: props.value,
         error: false,
     });
+
+    useEffect(() => {
+        setInputState({
+            ...inputState,
+            value: props.value,
+        });
+    }, [props.value]);
 
     const handleFieldChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setInputState({

@@ -4,5 +4,6 @@ export interface FormBasicInfo {
   title: string;
   slug: string;
   description: string;
+  isPublished: boolean;
   questions: Question[];
 }
