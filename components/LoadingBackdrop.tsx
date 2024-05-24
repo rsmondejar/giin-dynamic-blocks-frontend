@@ -10,11 +10,11 @@ export default function LoadingBackdrop(
         allowToClose?: boolean,
     }>
 ) {
-    const [open, setOpen]: [boolean, (value: (((prevState: boolean) => boolean) | boolean)) => void] = React.useState(propsIn.open);
+    const [open, setOpen]: [boolean, (value: (((prevState: boolean) => boolean) | boolean)) => void] = React.useState(propsIn.open || false);
     const [allowToClose, setAllowToClose]: [boolean, (value: (((prevState: boolean) => boolean) | boolean)) => void] = React.useState(propsIn.allowToClose || false);
 
     useEffect(() => {
-        setOpen(propsIn.open);
+        setOpen(propsIn.open || false);
         setAllowToClose(propsIn.allowToClose || false);
     }, [propsIn]);
 
