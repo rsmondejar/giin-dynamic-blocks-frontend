@@ -6,7 +6,7 @@ import {useEffect} from "react";
 
 export default function LoadingBackdrop(
     propsIn: Readonly<{
-        open: boolean,
+        open?: boolean,
         allowToClose?: boolean,
     }>
 ) {
