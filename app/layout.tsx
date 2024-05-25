@@ -4,6 +4,7 @@ import Providers from "@/components/Providers";
 import React, {Suspense} from "react";
 import NavBar from "@/components/NavBar";
 import Loading from "@/app/loading";
+import MicrosoftClarityTrackingCode from "@/components/MicrosoftClarityTrackingCode";
 
 export const metadata: Metadata = {
     title: {
@@ -23,6 +24,7 @@ export default function RootLayout({children}: Readonly<{
     return (
         <html lang="es">
         <body>
+        <MicrosoftClarityTrackingCode />
         <Providers>
             <NavBar />
             <Suspense fallback={<Loading />}>
