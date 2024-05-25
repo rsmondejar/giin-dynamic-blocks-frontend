@@ -17,6 +17,12 @@ import {useSession} from "next-auth/react";
 import LoadingBackdrop from "@/components/LoadingBackdrop";
 import FormCreate from "@/components/forms/interfaces/form-create.interface";
 import {useRouter} from 'next/navigation'
+import type {Metadata} from "next";
+
+export const metadata: Metadata = {
+    title: "Crear nuevo formulario",
+    description: "Create new form description page VIU GIIN Dynamic Blocks"
+};
 
 export default function FormsCreatePage() {
     useSession({

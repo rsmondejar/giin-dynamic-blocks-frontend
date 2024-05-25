@@ -4,7 +4,7 @@ import Header from "@/components/Header";
 import {Grid} from "@mui/material";
 import Container from "@mui/material/Container";
 export const metadata: Metadata = {
-    title: "Register",
+    title: "Registro nuevo usuario",
     description: "Register description page VIU GIIN Dynamic Blocks"
 };
 export default function RegisterPage() {

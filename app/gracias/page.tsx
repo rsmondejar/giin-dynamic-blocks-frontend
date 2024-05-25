@@ -1,6 +1,12 @@
 import Container from "@mui/material/Container";
 import {Grid} from "@mui/material";
 import React from "react";
+import type {Metadata} from "next";
+
+export const metadata: Metadata = {
+    title: "Gracias por su respuesta",
+    description: "Thanks description page VIU GIIN Dynamic Blocks"
+};
 
 export default function ThanksPage() {
     return (
