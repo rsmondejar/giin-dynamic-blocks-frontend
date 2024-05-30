@@ -3,6 +3,7 @@
 import { useThemeContext, ThemeContextType } from "@/theme/ThemeContextProvider";
 import { styled } from '@mui/material/styles';
 import Switch from '@mui/material/Switch';
+import {FormControlLabel} from "@mui/material";
 
 const MaterialUISwitch = styled(Switch)(({ theme }) => ({
     width: 62,
@@ -55,12 +56,18 @@ const NightModeToggle = () => {
     const { mode, toggleColorMode }: ThemeContextType = useThemeContext();
 
     return (
-        <MaterialUISwitch
-            id="NightModeToggle"
-            sx={{ m: 1 }}
-            checked={mode === "dark"}
-            onClick={toggleColorMode}
+        <FormControlLabel
+            control={ <MaterialUISwitch
+                id="NightModeToggle"
+                sx={{ m: 1 }}
+                checked={mode === "dark"}
+                onClick={toggleColorMode}
+                title="Toggle light/dark theme"
+            />}
+            aria-label="Toggle light/dark theme"
+            label=""
         />
+
     );
 };
 
