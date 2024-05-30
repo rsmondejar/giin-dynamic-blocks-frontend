@@ -1,6 +1,6 @@
 .parallax {
     height: 200px;
-    background-image: url("https://placehold.co/1920x400?text=Parallax\\nBackground");
+    background-image: url("/1920x400_parallax.svg");
     background-attachment: fixed;
     background-position: center;
     background-repeat: no-repeat;

@@ -7,7 +7,7 @@ export default function Services() {
         id: index + 1,
         title: `Servicio ${index + 1} título`,
         description: `Servicio ${index + 1} descripción. ${loremIpsum.substring(0, 50)}`,
-        image: `https://placehold.co/275x150`,
+        image: `275x150.svg`,
     }));
 
     return (

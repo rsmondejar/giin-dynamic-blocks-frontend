@@ -56,6 +56,7 @@ const NightModeToggle = () => {
 
     return (
         <MaterialUISwitch
+            id="NightModeToggle"
             sx={{ m: 1 }}
             checked={mode === "dark"}
             onClick={toggleColorMode}

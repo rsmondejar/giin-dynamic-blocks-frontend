@@ -16,7 +16,7 @@ export default function HomePage() {
             <Card>
                 <CardMedia
                     component="img"
-                    image="https://placehold.co/1920x400"
+                    image="1920x400.svg"
                     alt="banner"
                     title="banner"
                     width="100%"
@@ -56,7 +56,7 @@ export default function HomePage() {
                     <Services/>
                 </Grid>
             </Container>
-            <ImageParallax image="https://placehold.co/1920x400?text=Parallax\\nBackground" />
+            <ImageParallax image="1920x400_parallax.svg" />
             <Container sx={{py: 5}}>
                 <Grid sx={{pt: 2, pb: 2}}>
                     <Typography variant="h4" component="h2" gutterBottom>
