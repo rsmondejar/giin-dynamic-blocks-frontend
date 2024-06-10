@@ -16,6 +16,7 @@ import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import CardItemInput from "@/components/forms/CardItemInput";
 import FormCreateSpeedDial from "@/components/forms/FormCreateSpeedDial";
+import AddCommentIcon from "@mui/icons-material/AddComment";
 
 export default function FormsCreate() {
     useSession({
@@ -247,9 +248,10 @@ export default function FormsCreate() {
 
                             <h2>Preguntas:</h2>
 
-                            {questions.length > 0 && (
-                                <Box sx={{width: '100%'}}>
-                                    <Stack spacing={3}>
+                            <Box sx={{width: '100%'}}>
+                                <Stack spacing={3}>
+                                    {questions.length > 0 && (
+                                        <>
                                         {questions.map((question) => (
                                             question.id.length > 0 && (
                                                 <CardItemInput
@@ -259,11 +261,8 @@ export default function FormsCreate() {
                                                 />
                                             )
                                         ))}
-                                    </Stack>
-                                </Box>
-                            ) || (
-                                <Box sx={{width: '100%'}}>
-                                    <Stack spacing={3}>
+                                        </>
+                                    ) || (
                                         <Item>
                                             <Grid container direction="row" justifyContent="flex-start" mb={1}>
                                                 <Grid item>
@@ -271,9 +270,20 @@ export default function FormsCreate() {
                                                 </Grid>
                                             </Grid>
                                         </Item>
-                                    </Stack>
-                                </Box>
-                            )}
+
+                                    )}
+                                    <Grid container alignItems='center' justifyContent='right' sx={{mb: 5}}>
+                                        <Button
+                                            variant="contained"
+                                            color="primary"
+                                            onClick={handleAddQuestion}
+                                            startIcon={<AddCommentIcon/>}
+                                        >
+                                            Agregar pregunta
+                                        </Button>
+                                    </Grid>
+                                </Stack>
+                            </Box>
                         </Grid>
                     </Grid>
                 </Container>

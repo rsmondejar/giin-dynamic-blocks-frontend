@@ -6,7 +6,6 @@ import SpeedDial from '@mui/material/SpeedDial';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import SpeedDialAction from '@mui/material/SpeedDialAction';
 import SaveIcon from '@mui/icons-material/Save';
-import PrintIcon from '@mui/icons-material/Print';
 import AddCommentIcon from '@mui/icons-material/AddComment';
 import { useSnackbar } from 'notistack';
 
@@ -17,17 +16,27 @@ export default function FormCreateSpeedDial(propsIn: Readonly<{
 
     const { enqueueSnackbar } = useSnackbar();
 
-    const handleClickSave = () => {
-        propsIn.handleOpenSaveDialog()
-    }
+    const [open, setOpen]: [boolean, (value: (((prevState: boolean) => boolean) | boolean)) => void] = React.useState(true);
 
-    const handleClickPrint = () => {
-        enqueueSnackbar('Funcionalidad de imprimir no implementada en esta versión.', { variant: 'info' });
+    const handleClickSave = () => {
+        propsIn.handleOpenSaveDialog();
     }
 
     const handleClickAddQuestion = () => {
-        propsIn.handleAddQuestion()
+        propsIn.handleAddQuestion();
         enqueueSnackbar('Pregunta añadida ...', { variant: 'success' });
+    }
+
+    const handleOnOpen = (e: any, reason: any) => {
+        if (reason === 'toggle') {
+            setOpen(true);
+        }
+    }
+
+    const handleOnClose = (e: any, reason: any) => {
+        if (reason === 'toggle') {
+            setOpen(false);
+        }
     }
 
     return (
@@ -36,18 +45,15 @@ export default function FormCreateSpeedDial(propsIn: Readonly<{
                 ariaLabel="SpeedDial basic example"
                 sx={{ position: 'fixed', bottom: 5, right: 5 }}
                 icon={<SpeedDialIcon />}
+                open={open}
+                onOpen={handleOnOpen}
+                onClose={handleOnClose}
             >
                 <SpeedDialAction
                     key="save"
                     icon={<SaveIcon />}
                     tooltipTitle="Guardar"
                     onClick={handleClickSave}
-                />
-                <SpeedDialAction
-                    key="print"
-                    icon={<PrintIcon />}
-                    tooltipTitle="Imprimir"
-                    onClick={handleClickPrint}
                 />
                 <SpeedDialAction
                     key="add_question"
