@@ -19,8 +19,8 @@ export default function HomePage() {
                     image="1920x400.svg"
                     alt="banner"
                     title="banner"
-                    width="100%"
-                    height="auto"
+                    width="1920"
+                    height="400"
                 />
             </Card>
             <Container sx={{pt: 5, pb: 10}}>

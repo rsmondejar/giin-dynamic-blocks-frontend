@@ -20,8 +20,8 @@ export default function Services() {
                             image={item.image}
                             alt={item.title}
                             title={item.title}
-                            width="100%"
-                            height="auto"
+                            width="275"
+                            height="150"
                         />
                         <CardContent>
                             <Typography variant="h5" component="h3">
