@@ -65,6 +65,7 @@ export default function InputTextField(
             rows={props.rows}
             multiline={props.type === 'multiline'}
             size={props.size}
+            InputLabelProps={{ shrink: props.type === 'date' }}
         />
     );
 }

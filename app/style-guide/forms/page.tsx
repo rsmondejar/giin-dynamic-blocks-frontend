@@ -58,10 +58,25 @@ export default function StyleGuideFormsPage() {
                                 </Item>
                                 <Item>
                                     <InputTextField
-                                        label="Input type date"
+                                        label="Input type date with value current date"
                                         placeholder="Esto es el placeholder"
                                         hasError={false}
                                         value={new Date().toISOString().split('T')[0]}
+                                        type="date"
+                                    />
+                                </Item>
+                                <Item>
+                                    <InputTextField
+                                        label="Input type date without value and placeholder"
+                                        placeholder="Esto es el placeholder"
+                                        hasError={false}
+                                        type="date"
+                                    />
+                                </Item>
+                                <Item>
+                                    <InputTextField
+                                        label="Input type date without value and without placeholder"
+                                        hasError={false}
                                         type="date"
                                     />
                                 </Item>
