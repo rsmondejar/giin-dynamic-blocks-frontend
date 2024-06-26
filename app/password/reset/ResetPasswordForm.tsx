@@ -1,19 +1,20 @@
 "use client";
 
 import React, {useState} from "react";
-import {signIn} from "next-auth/react";
 import {Alert, Button, Grid, TextField} from "@mui/material";
-import {useRouter, useSearchParams} from "next/navigation";
+import {useRouter} from "next/navigation";
 import Link from "next/link";
+import UserPasswordEmailReset from "@/components/users/interfaces/user-password-email-reset";
+import {useSnackbar} from "notistack";
+import EmailIcon from '@mui/icons-material/Email';
 
-export default function LoginForm() {
+export default function ResetPasswordForm() {
+    const [loading, setLoading] = useState(false);
+    const {enqueueSnackbar} = useSnackbar();
     const router = useRouter();
-    const searchParams = useSearchParams()
-    const email = searchParams.get('email') ?? ''
 
     const [authState, setAuthState] = useState({
-        email: email ?? '',
-        password: '',
+        email: '',
     });
 
     const [formState, setFormState] = useState({
@@ -28,11 +29,13 @@ export default function LoginForm() {
         });
     }
 
-    const simplifyError = (error: string): string => {
+    const simplifyError = (error: string): Promise<string> => {
+        console.log('aqui', error);
         const errorMap: any = {
-            'CredentialsSignin': 'El email y/o la contraseña son incorrectos',
-            'SessionRequired': 'Necesario iniciar sesión primero',
+            'USER_NOT_FOUND': 'No se ha encontrado el email en el sistema',
         }
+
+        console.log('errorMap', errorMap);
 
         return errorMap[error] || 'Error desconocido';
     }
@@ -50,35 +53,49 @@ export default function LoginForm() {
             error: ''
         }));
 
-        signIn('credentials', {
-            ...authState,
-            redirect: false
-        }).then((res) => {
-            if (undefined === res) {
-                throw new Error('No response from server');
-            }
-            if (res.ok) {
-                router.push('/dashboard');
+        try {
+            // enable loading screen
+            setLoading(true);
 
-            } else {
-                setFormState((old: { processing: boolean; error: string }): { error: any, processing: boolean } => ({
-                    ...old,
-                    error: res?.error || '',
-                    processing: false
-                }));
+            // send form to backend
+            const response = await sendForm(authState);
+
+            if (response.errors) {
+                throw new Error(response.errors ?? '');
             }
-        }).catch((err): void => {
-            console.error(err);
+
+            enqueueSnackbar('Enviado email resteo contraseña.', {variant: 'success'});
+        } catch (error: any) {
             setFormState((old: { processing: boolean; error: string }): { error: any, processing: boolean } => ({
                 ...old,
-                error: err.message,
+                error: error.message,
+            }));
+            enqueueSnackbar(simplifyError(error.message), {variant: 'error'});
+        } finally {
+            // disable loading screen
+            setLoading(false);
+            setFormState((old: { processing: boolean; error: string }): { error: any, processing: boolean } => ({
+                ...old,
                 processing: false
             }));
-        })
+        }
     }
+
+    const sendForm = async (user: UserPasswordEmailReset) => {
+        const formPasswordEmailResetResponse = await fetch(`/api/auth/password/email`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(user),
+        });
+
+        return await formPasswordEmailResetResponse.json()
+    }
+
     return (
         <Grid container alignItems='center' justifyContent='center'>
-            <Grid item xs={12}>
+            <Grid item>
                 {
                     formState.error !== '' &&
                     <Alert severity='error' sx={{mb: 2}}>
@@ -95,47 +112,23 @@ export default function LoginForm() {
                     id='email'
                     placeholder='Introducir correo electrónico ...'
                 />
-                <TextField
-                    sx={{mb: 1}}
-                    onChange={handleFieldChange}
-                    onKeyDown={handleKeyDown}
-                    value={authState.password}
-                    fullWidth
-                    label='Contraseña'
-                    id='password'
-                    type='password'
-                    placeholder='Introducir contraseña ...'
-                />
                 <Button
                     disabled={formState.processing}
                     sx={{mb: 1}}
                     onClick={handleSubmit}
                     fullWidth
                     variant='contained'
+                    startIcon={<EmailIcon />}
                 >
-                    Entrar
+                    Enviar enlace para resetear la contraseña
                 </Button>
-
-
-            </Grid>
-            <Grid item xs={12}>
                 <Button
                     component={Link}
                     variant="text"
                     color="primary"
-                    href="/password/reset"
+                    href="/login"
                 >
-                    ¿Olvidaste tu contraseña?
-                </Button>
-            </Grid>
-            <Grid item xs={12}>
-                <Button
-                    component={Link}
-                    variant="text"
-                    color="primary"
-                    href="/register"
-                >
-                    Registar usuario
+                   Login
                 </Button>
             </Grid>
         </Grid>
