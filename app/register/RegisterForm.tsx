@@ -7,6 +7,7 @@ import {useRouter} from "next/navigation";
 import LoadingBackdrop from "@/components/LoadingBackdrop";
 import UserRegister from "@/components/users/interfaces/user-register.interface";
 import {useSnackbar} from "notistack";
+import Link from "next/link";
 
 export default function RegisterForm() {
     const [loading, setLoading] = useState(false);
@@ -52,11 +53,8 @@ export default function RegisterForm() {
             // enable loading screen
             setLoading(true);
 
-            console.log(authState);
-
             // send form to backend
             const response = await sendForm(authState);
-
 
             if (response.errors) {
                 throw new Error(
@@ -175,6 +173,14 @@ export default function RegisterForm() {
                         variant='contained'
                     >
                         Registrar
+                    </Button>
+                    <Button
+                        component={Link}
+                        variant="text"
+                        color="primary"
+                        href="/login"
+                    >
+                        Login
                     </Button>
                 </Grid>
             </Grid>

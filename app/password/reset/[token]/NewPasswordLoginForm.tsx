@@ -1,12 +1,16 @@
 "use client";
 
 import React, {useState} from "react";
-import {signIn} from "next-auth/react";
 import {Alert, Button, Grid, TextField} from "@mui/material";
 import {useRouter, useSearchParams} from "next/navigation";
 import Link from "next/link";
+import {useSnackbar} from "notistack";
+import UserNewPassword from "@/components/users/interfaces/user-new-password";
+import {signIn} from "next-auth/react";
 
-export default function LoginForm() {
+export default function NewPasswordForm(props: { token: string }) {
+    const [loading, setLoading] = useState(false);
+    const {enqueueSnackbar} = useSnackbar();
     const router = useRouter();
     const searchParams = useSearchParams()
     const email = searchParams.get('email') ?? ''
@@ -14,6 +18,7 @@ export default function LoginForm() {
     const [authState, setAuthState] = useState({
         email: email ?? '',
         password: '',
+        token: props.token,
     });
 
     const [formState, setFormState] = useState({
@@ -30,8 +35,7 @@ export default function LoginForm() {
 
     const simplifyError = (error: string): string => {
         const errorMap: any = {
-            'CredentialsSignin': 'El email y/o la contraseña son incorrectos',
-            'SessionRequired': 'Necesario iniciar sesión primero',
+            'USER_MAIL_TOKEN_NOT_FOUND': 'No se ha encontrado el email y/o token de reseteo',
         }
 
         return errorMap[error] || 'Error desconocido';
@@ -50,31 +54,70 @@ export default function LoginForm() {
             error: ''
         }));
 
-        signIn('credentials', {
-            ...authState,
-            redirect: false
-        }).then((res) => {
-            if (undefined === res) {
-                throw new Error('No response from server');
-            }
-            if (res.ok) {
-                router.push('/dashboard');
+        try {
+            // enable loading screen
+            setLoading(true);
 
-            } else {
+            // send form to backend
+            const response = await sendForm(authState);
+
+            if (response.errors) {
+                throw new Error(response.errors ?? '');
+            }
+
+            enqueueSnackbar('Se ha reseteado correctamente la contraseña.', {variant: 'success'});
+
+            signIn('credentials', {
+                ...authState,
+                redirect: false
+            }).then((res) => {
+                if (undefined === res) {
+                    throw new Error('No response from server');
+                }
+                if (res.ok) {
+                    router.push('/dashboard');
+
+                } else {
+                    setFormState((old: { processing: boolean; error: string }): { error: any, processing: boolean } => ({
+                        ...old,
+                        error: res?.error || '',
+                        processing: false
+                    }));
+                }
+            }).catch((err): void => {
+                console.error(err);
                 setFormState((old: { processing: boolean; error: string }): { error: any, processing: boolean } => ({
                     ...old,
-                    error: res?.error || '',
+                    error: err.message,
                     processing: false
                 }));
-            }
-        }).catch((err): void => {
-            console.error(err);
+            })
+        } catch (error: any) {
             setFormState((old: { processing: boolean; error: string }): { error: any, processing: boolean } => ({
                 ...old,
-                error: err.message,
+                error: error.message,
+            }));
+            enqueueSnackbar(simplifyError(error.message), {variant: 'error'});
+        } finally {
+            // disable loading screen
+            setLoading(false);
+            setFormState((old: { processing: boolean; error: string }): { error: any, processing: boolean } => ({
+                ...old,
                 processing: false
             }));
-        })
+        }
+    }
+
+    const sendForm = async (user: UserNewPassword) => {
+        const formPasswordEmailResetResponse = await fetch(`/api/auth/password/reset`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(user),
+        });
+
+        return await formPasswordEmailResetResponse.json()
     }
     return (
         <Grid container alignItems='center' justifyContent='center'>
@@ -113,19 +156,7 @@ export default function LoginForm() {
                     fullWidth
                     variant='contained'
                 >
-                    Entrar
-                </Button>
-
-
-            </Grid>
-            <Grid item xs={12}>
-                <Button
-                    component={Link}
-                    variant="text"
-                    color="primary"
-                    href="/password/reset"
-                >
-                    ¿Olvidaste tu contraseña?
+                    Resetear contraseña
                 </Button>
             </Grid>
             <Grid item xs={12}>
@@ -133,9 +164,9 @@ export default function LoginForm() {
                     component={Link}
                     variant="text"
                     color="primary"
-                    href="/register"
+                    href="/login"
                 >
-                    Registar usuario
+                    Login
                 </Button>
             </Grid>
         </Grid>

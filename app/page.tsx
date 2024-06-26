@@ -9,6 +9,7 @@ import loremIpsum from "@/lib/Lorem";
 import UserRecommendationSlider from "@/components/landing/UserRecommendationSlider";
 import moment from "moment/moment";
 import ImageParallax from "@/components/landing/image-parallax/ImageParallax";
+import Link from "next/link";
 
 export default function HomePage() {
     return (
@@ -31,10 +32,10 @@ export default function HomePage() {
                     </Typography>
                     <ButtonGroup sx={{py: 2}}>
                         <Stack spacing={2} direction="row">
-                            <Button variant="contained" color="primary" href="/login">
+                            <Button component={Link} variant="contained" color="primary" href="/login">
                                 Iniciar sesión
                             </Button>
-                            <Button variant="contained" color="primary" href="/register">
+                            <Button component={Link} variant="contained" color="primary" href="/register">
                                 Registrarse
                             </Button>
                         </Stack>
