@@ -2,7 +2,6 @@
 
 import React, {useState} from "react";
 import {Alert, Button, Grid, TextField} from "@mui/material";
-import {useRouter} from "next/navigation";
 import Link from "next/link";
 import UserPasswordEmailReset from "@/components/users/interfaces/user-password-email-reset";
 import {useSnackbar} from "notistack";
@@ -11,7 +10,6 @@ import EmailIcon from '@mui/icons-material/Email';
 export default function ResetPasswordForm() {
     const [loading, setLoading] = useState(false);
     const {enqueueSnackbar} = useSnackbar();
-    const router = useRouter();
 
     const [authState, setAuthState] = useState({
         email: '',
