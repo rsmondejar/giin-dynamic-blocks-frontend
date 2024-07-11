@@ -157,13 +157,6 @@ const headCells: readonly HeadCell[] = [
         align: 'center',
     },
     {
-        id: 'author',
-        numeric: false,
-        disablePadding: false,
-        label: 'Autor',
-        align: 'center',
-    },
-    {
         id: 'isPublished',
         numeric: false,
         disablePadding: false,
@@ -630,7 +623,6 @@ export default function FormListTable() {
                                                     {row.slug}
                                                 </Button>
                                             </StyledTableCell>
-                                            <StyledTableCell align="left">{row.author?.name ?? ''}</StyledTableCell>
                                             <StyledTableCell
                                                 align="center">{row.isPublished ? 'Sí' : 'No'}</StyledTableCell>
                                             <StyledTableCell align="center">
@@ -690,9 +682,6 @@ export default function FormListTable() {
                                                 <Skeleton variant="rectangular"/>
                                             </StyledTableCell>
                                             <StyledTableCell align="left">
-                                                <Skeleton variant="rectangular"/>
-                                            </StyledTableCell>
-                                            <StyledTableCell align="center">
                                                 <Skeleton variant="rectangular"/>
                                             </StyledTableCell>
                                             <StyledTableCell align="left">
