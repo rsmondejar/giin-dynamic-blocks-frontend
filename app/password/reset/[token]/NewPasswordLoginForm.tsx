@@ -8,7 +8,7 @@ import {useSnackbar} from "notistack";
 import UserNewPassword from "@/components/users/interfaces/user-new-password";
 import {signIn} from "next-auth/react";
 
-export default function NewPasswordForm(props: { token: string }) {
+export default function NewPasswordForm(props:  Readonly<{ token: string }>) {
     const [loading, setLoading] = useState(false);
     const {enqueueSnackbar} = useSnackbar();
     const router = useRouter();
@@ -80,7 +80,7 @@ export default function NewPasswordForm(props: { token: string }) {
                 } else {
                     setFormState((old: { processing: boolean; error: string }): { error: any, processing: boolean } => ({
                         ...old,
-                        error: res?.error || '',
+                        error: res?.error ?? '',
                         processing: false
                     }));
                 }
