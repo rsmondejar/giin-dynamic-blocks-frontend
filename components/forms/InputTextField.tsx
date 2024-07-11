@@ -46,6 +46,8 @@ export default function InputTextField(
         }
     }
 
+    const inputLabelProps = props.type === 'date' ? { shrink: true } : {};
+
     return (
         <TextField
             error={props.hasError}
@@ -65,7 +67,7 @@ export default function InputTextField(
             rows={props.rows}
             multiline={props.type === 'multiline'}
             size={props.size}
-            InputLabelProps={{ shrink: props.type === 'date' }}
+            InputLabelProps={ inputLabelProps }
         />
     );
 }
