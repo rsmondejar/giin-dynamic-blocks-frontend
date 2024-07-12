@@ -6,5 +6,6 @@ export interface UserBasicInfo {
   name: string;
   lastName?: string | null;
   token?: AuthToken | null;
+  isAdmin?: boolean;
   createdAt: Date;
 }

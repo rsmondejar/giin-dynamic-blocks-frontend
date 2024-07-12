@@ -19,6 +19,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import FolderSharedIcon from '@mui/icons-material/FolderShared';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import FeedIcon from '@mui/icons-material/Feed';
+import RestoreIcon from '@mui/icons-material/Restore';
 import {visuallyHidden} from '@mui/utils';
 import moment from "moment/moment";
 import Link from "next/link";
@@ -51,6 +52,11 @@ interface Author {
 interface CountMetrics {
     formSubmission: number;
     formsRoles: number;
+    questions?: number;
+}
+
+interface Question {
+    id: string;
 }
 
 interface Data {
@@ -60,8 +66,13 @@ interface Data {
     author: Author;
     isPublished: boolean;
     createdAt: string;
+    deletedAt: string;
     formsRoles: any;
+    questions: Question[];
     _count: CountMetrics;
+    _countFormSubmission: number;
+    _countFormRoles: number;
+    _countFormQuestions: number;
 }
 
 interface HeadCell {
@@ -110,8 +121,8 @@ function getComparator<Key extends keyof any>(
     order: Order,
     orderBy: Key,
 ): (
-    a: { [key in Key]: number | string | Author | boolean | CountMetrics },
-    b: { [key in Key]: number | string | Author | boolean | CountMetrics},
+    a: { [key in Key]: number | string | Author | boolean | CountMetrics | Question[] },
+    b: { [key in Key]: number | string | Author | boolean | CountMetrics | Question[] },
 ) => number {
     return order === 'desc'
         ? (a, b) => descendingComparator(a, b, orderBy)
@@ -164,10 +175,24 @@ const headCells: readonly HeadCell[] = [
         align: 'center',
     },
     {
-        id: '_count',
+        id: '_countFormSubmission',
         numeric: false,
         disablePadding: false,
         label: 'Total inscripciones',
+        align: 'center',
+    },
+    {
+        id: '_countFormRoles',
+        numeric: false,
+        disablePadding: false,
+        label: 'Total Permisos',
+        align: 'center',
+    },
+    {
+        id: '_countFormQuestions',
+        numeric: false,
+        disablePadding: false,
+        label: 'Total preguntas',
         align: 'center',
     },
 ];
@@ -264,7 +289,18 @@ export default function FormListTable() {
     // Load data from API
     React.useEffect(() => {
         setLoadingGetData(true);
-        getForms().then((data) => {
+        getForms()
+            .then(data => {
+                return data.map((form: Data) => {
+                    return {
+                        ...form,
+                        _count: {
+                          questions: form?.questions?.length ?? 0,
+                        },
+                    }
+                })
+            })
+            .then(data => {
             setRows(data);
             setLoadingGetData(false);
         });
@@ -370,6 +406,62 @@ export default function FormListTable() {
         });
 
         return await formCreateResponse.json()
+    }
+
+    const [openRestoreDialog, setOpenRestoreDialog] = React.useState(false);
+    const [restoreFormItem, setRestoreFormItem] = React.useState({} as Data);
+
+    const handleOpenRestoreDialog = (form: Data) => {
+        setOpenRestoreDialog(true);
+        setRestoreFormItem(form);
+    };
+
+    const handleCloseRestoreDialog = () => {
+        setOpenRestoreDialog(false);
+    };
+
+    const handleConfirmRestoreDialog = async () => {
+        setOpenRestoreDialog(false);
+
+        try {
+            // enable loading screen
+            setLoading(true);
+
+            // send form to backend
+            const response = await sendRestoreItem(restoreFormItem);
+
+            if (response.errors) {
+                throw new Error(
+                    'Error al restaurar el formulario: ' + (response.errors ?? '')
+                );
+            }
+
+            enqueueSnackbar('Formulario restaurado correctamente.', { variant: 'success' });
+
+            // Recargar los formularios
+            await getForms().then((data) => {
+                setRows(data);
+                enqueueSnackbar('Listado de formulariosa actualizado.', { variant: 'success' });
+            });
+        } catch (error: any) {
+            enqueueSnackbar(error?.message ?? '', { variant: 'error' });
+        } finally {
+            // disable loading screen
+            setLoading(false);
+            setRestoreFormItem({} as Data);
+        }
+    }
+
+    const sendRestoreItem = async (form: Data) => {
+        const formRestoreResponse = await fetch(`/api/forms/${form.id}/restore`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(form),
+        });
+
+        return await formRestoreResponse.json()
     }
 
     const handleExportFormSubmissions = async (form: Data) => {
@@ -568,6 +660,8 @@ export default function FormListTable() {
         return await response.json();
     }
 
+    const isAdminUser = session?.user?.isAdmin ?? false;
+
     return (
         <>
             <LoadingBackdrop open={loading} />
@@ -632,21 +726,35 @@ export default function FormListTable() {
                                                     title={`Total inscripciones del formulario ${row.title}`}
                                                 />
                                             </StyledTableCell>
+                                            <StyledTableCell align="center">
+                                                <Chip
+                                                    label={row?._count?.formsRoles ?? 0}
+                                                    variant="outlined"
+                                                    title={`Total permisos del formulario ${row.title}`}
+                                                />
+                                            </StyledTableCell>
+                                            <StyledTableCell align="center">
+                                                <Chip
+                                                    label={row?._count?.questions ?? 0}
+                                                    variant="outlined"
+                                                    title={`Total preguntas del formulario ${row.title}`}
+                                                />
+                                            </StyledTableCell>
                                             <StyledTableCell
                                                 component="th"
                                                 id={labelId}
                                                 scope="row"
                                             >
                                                 <ButtonGroup size="small">
-                                                    {row.formsRoles.some((formRole: FormRole) =>
-                                                        formRole.user.id === userId && formRole.role.type === roleTypeOwner) && (
+                                                    {(isAdminUser || row.formsRoles.some((formRole: FormRole) =>
+                                                        formRole.user.id === userId && formRole.role.type === roleTypeOwner)) && (
                                                         <Button
                                                             onClick={() => handleOpenShareDialog(row)}
                                                             variant="contained"
                                                             color="warning"
                                                             title={`Compartir formulario ${row.title}`}
                                                         >
-                                                            <FolderSharedIcon />
+                                                            <FolderSharedIcon/>
                                                         </Button>
                                                     )}
                                                     <Button
@@ -655,17 +763,30 @@ export default function FormListTable() {
                                                         color="info"
                                                         title={`Exportar inscripciones formulario ${row.title}`}
                                                     >
-                                                        <FeedIcon />
+                                                        <FeedIcon/>
                                                     </Button>
-                                                    {row.formsRoles.some((formRole: { user: { id: string; }; role: { type: string; }; }) =>
-                                                        formRole.user.id === userId && formRole.role.type === roleTypeOwner) && (
+                                                    {(isAdminUser || row.formsRoles.some((formRole: {
+                                                        user: { id: string; };
+                                                        role: { type: string; };
+                                                    }) =>
+                                                        formRole.user.id === userId && formRole.role.type === roleTypeOwner)) && (
+                                                        isAdminUser && row.deletedAt) && (
+                                                        <Button
+                                                            onClick={() => handleOpenRestoreDialog(row)}
+                                                            variant="contained"
+                                                            color="success"
+                                                            title={`Restaurar formulario ${row.title}`}
+                                                        >
+                                                            <RestoreIcon/>
+                                                        </Button>
+                                                    ) || (
                                                         <Button
                                                             onClick={() => handleOpenDeleteDialog(row)}
                                                             variant="contained"
                                                             color="error"
                                                             title={`Eliminar formulario ${row.title}`}
                                                         >
-                                                            <DeleteIcon />
+                                                            <DeleteIcon/>
                                                         </Button>
                                                     )}
                                                 </ButtonGroup>
@@ -686,6 +807,12 @@ export default function FormListTable() {
                                             </StyledTableCell>
                                             <StyledTableCell align="left">
                                                 <Skeleton variant="rectangular"/>
+                                            </StyledTableCell>
+                                            <StyledTableCell align="center">
+                                                <Skeleton variant="rounded"/>
+                                            </StyledTableCell>
+                                            <StyledTableCell align="center">
+                                                <Skeleton variant="rounded"/>
                                             </StyledTableCell>
                                             <StyledTableCell align="center">
                                                 <Skeleton variant="rounded"/>
@@ -747,6 +874,29 @@ export default function FormListTable() {
                     </DialogActions>
                 </Dialog>
                 <Dialog
+                    open={openRestoreDialog}
+                    onClose={handleCloseRestoreDialog}
+                    aria-labelledby="alert-dialog-restore-title"
+                    aria-describedby="alert-dialog-restore-description"
+                >
+                    <DialogTitle id="alert-dialog-restore-title">
+                        {"¿Usted está seguro de restaurar el formulario?"}
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-restore-description">
+                            El formulario <strong>&quot;{restoreFormItem.title ?? ''}&quot;</strong> será restaurado.
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleCloseRestoreDialog} variant="contained" color="secondary">
+                            Cancelar
+                        </Button>
+                        <Button onClick={handleConfirmRestoreDialog} variant="contained" autoFocus>
+                            Restaurar
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+                <Dialog
                     open={openShareDialog}
                     onClose={handleCloseShareDialog}
                     aria-labelledby="alert-dialog-share-title"
@@ -797,7 +947,7 @@ export default function FormListTable() {
 
                         <p>Listado de usuarios con permisos:</p>
                         <List>
-                            {formUserRoles.map((formUserRole: FormRole, index: number) => (
+                            {formUserRoles?.map((formUserRole: FormRole, index: number) => (
                                 <Grid
                                     key={uuid.v4().toString()}
                                     container
