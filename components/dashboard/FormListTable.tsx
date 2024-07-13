@@ -385,7 +385,7 @@ export default function FormListTable() {
             // Recargar los formularios
             await getForms().then((data) => {
                 setRows(data);
-                enqueueSnackbar('Listado de formulariosa actualizado.', { variant: 'success' });
+                enqueueSnackbar('Listado de formularios actualizado.', { variant: 'success' });
             });
         } catch (error: any) {
             enqueueSnackbar(error?.message ?? '', { variant: 'error' });
@@ -441,7 +441,7 @@ export default function FormListTable() {
             // Recargar los formularios
             await getForms().then((data) => {
                 setRows(data);
-                enqueueSnackbar('Listado de formulariosa actualizado.', { variant: 'success' });
+                enqueueSnackbar('Listado de formularios actualizado.', { variant: 'success' });
             });
         } catch (error: any) {
             enqueueSnackbar(error?.message ?? '', { variant: 'error' });
@@ -560,7 +560,7 @@ export default function FormListTable() {
             await getForms().then((data) => {
                 setRows(data);
                 setFormUserRoles(data.find((form: Data) => form.id === formToShare.id)?.formsRoles ?? []);
-                enqueueSnackbar('Listado de formulariosa actualizado.', { variant: 'success' });
+                enqueueSnackbar('Listado de formularios actualizado.', { variant: 'success' });
             });
         } catch (error: any) {
             enqueueSnackbar(error?.message ?? '', { variant: 'error' });
@@ -600,7 +600,7 @@ export default function FormListTable() {
             await getForms().then((data) => {
                 setRows(data);
                 setFormUserRoles(data.find((form: Data) => form.id === formToShare.id)?.formsRoles ?? []);
-                enqueueSnackbar('Listado de formulariosa actualizado.', { variant: 'success' });
+                enqueueSnackbar('Listado de formularios actualizado.', { variant: 'success' });
             });
 
             setAddPermissionEmailInput('');
