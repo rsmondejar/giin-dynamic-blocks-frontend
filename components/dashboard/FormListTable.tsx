@@ -829,7 +829,7 @@ export default function FormListTable() {
                                             height: (dense ? 33 : 53) * emptyRows,
                                         }}
                                     >
-                                        <StyledTableCell colSpan={7}>
+                                        <StyledTableCell colSpan={8}>
                                             Todavía no tienes formularios dados de alta
                                         </StyledTableCell>
                                     </StyledTableRow>
